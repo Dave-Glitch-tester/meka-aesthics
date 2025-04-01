@@ -28,49 +28,49 @@ const cartItems = [
   },
 ];
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const id = params.id;
-    const itemIndex = cartItems.findIndex((item) => item.id === id);
+// export async function PATCH(
+//   request: Request,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     const id = params.id;
+//     const itemIndex = cartItems.findIndex((item) => item.id === id);
 
-    if (itemIndex === -1) {
-      return NextResponse.json(
-        { message: "Cart item not found" },
-        { status: 404 }
-      );
-    }
+//     if (itemIndex === -1) {
+//       return NextResponse.json(
+//         { message: "Cart item not found" },
+//         { status: 404 }
+//       );
+//     }
 
-    const data = await request.json();
+//     const data = await request.json();
 
-    if (data.quantity !== undefined) {
-      // Ensure quantity is valid
-      if (data.quantity <= 0) {
-        return NextResponse.json(
-          { message: "Quantity must be greater than 0" },
-          { status: 400 }
-        );
-      }
+//     if (data.quantity !== undefined) {
+//       // Ensure quantity is valid
+//       if (data.quantity <= 0) {
+//         return NextResponse.json(
+//           { message: "Quantity must be greater than 0" },
+//           { status: 400 }
+//         );
+//       }
 
-      // Check if quantity exceeds available stock
-      if (data.quantity > cartItems[itemIndex].product.quantity) {
-        data.quantity = cartItems[itemIndex].product.quantity;
-      }
+//       // Check if quantity exceeds available stock
+//       if (data.quantity > cartItems[itemIndex].product.quantity) {
+//         data.quantity = cartItems[itemIndex].product.quantity;
+//       }
 
-      cartItems[itemIndex].quantity = data.quantity;
-    }
+//       cartItems[itemIndex].quantity = data.quantity;
+//     }
 
-    return NextResponse.json(cartItems[itemIndex]);
-  } catch (error) {
-    console.error("Error updating cart item:", error);
-    return NextResponse.json(
-      { message: "Failed to update cart item" },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json(cartItems[itemIndex]);
+//   } catch (error) {
+//     console.error("Error updating cart item:", error);
+//     return NextResponse.json(
+//       { message: "Failed to update cart item" },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 // export async function DELETE(request: Request, { params }: { params: { id: string } }) {
 //   const id = params.id

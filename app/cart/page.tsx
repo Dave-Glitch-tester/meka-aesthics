@@ -1,173 +1,195 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Minus, Plus, ShoppingCart, Trash2, CreditCard, Heart } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/use-auth"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Minus,
+  Plus,
+  ShoppingCart,
+  Trash2,
+  CreditCard,
+  Heart,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 interface CartItem {
-  id: string
-  productId: string
+  id: string;
+  productId: string;
   product: {
-    id: string
-    name: string
-    price: number
-    imageUrl: string
-    quantity: number
-  }
-  quantity: number
+    id: string;
+    name: string;
+    price: number;
+    imageUrl: string;
+    quantity: number;
+  };
+  quantity: number;
 }
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [wishlistItems, setWishlistItems] = useState<string[]>([]) // Array of product IDs in wishlist
-  const [processingWishlist, setProcessingWishlist] = useState<string | null>(null)
-  const { toast } = useToast()
-  const { user } = useAuth()
-  const router = useRouter()
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [wishlistItems, setWishlistItems] = useState<string[]>([]); // Array of product IDs in wishlist
+  const [processingWishlist, setProcessingWishlist] = useState<string | null>(
+    null
+  );
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) {
-      router.push("/login?redirect=/cart")
-      return
+      router.push("/login?redirect=/cart");
+      return;
     }
 
-    fetchCart()
-    fetchWishlist()
-  }, [user, router, toast])
+    fetchCart();
+    fetchWishlist();
+  }, [user, router, toast]);
 
   // BACKEND INTEGRATION: This function would fetch the user's cart from your database
   // You would implement a proper API endpoint that connects to your database
   // and returns the cart items with product details
   const fetchCart = async () => {
     try {
-      const response = await fetch("/api/cart")
-      if (!response.ok) throw new Error("Failed to fetch cart")
-      const data = await response.json()
-      setCartItems(data)
+      const response = await fetch("/api/cart");
+      if (!response.ok) throw new Error("Failed to fetch cart");
+      const data = await response.json();
+      setCartItems(data);
     } catch (error) {
-      console.error("Error fetching cart:", error)
+      console.error("Error fetching cart:", error);
       toast({
         title: "Error",
         description: "Failed to load cart items",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Fetch wishlist items
   const fetchWishlist = async () => {
-    if (!user) return
+    if (!user) return;
 
     try {
-      const response = await fetch("/api/wishlist")
+      const response = await fetch("/api/wishlist");
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json();
         // Extract product IDs from wishlist items
-        const wishlistProductIds = data.map((item: any) => item.productId)
-        setWishlistItems(wishlistProductIds)
+        const wishlistProductIds = data.map((item: any) => item.productId);
+        setWishlistItems(wishlistProductIds);
       }
     } catch (error) {
-      console.error("Error fetching wishlist:", error)
+      console.error("Error fetching wishlist:", error);
     }
-  }
+  };
 
   // BACKEND INTEGRATION: This function would update the quantity of an item in the cart
   // You would implement a proper API endpoint that connects to your database
   // and updates the quantity with validation against available stock
-  const updateQuantity = async (itemId: string, newQuantity: number) => {
-    try {
-      const response = await fetch(`/api/cart/${itemId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ quantity: newQuantity }),
-      })
 
-      if (!response.ok) throw new Error("Failed to update quantity")
+  // const updateQuantity = async (itemId: string, newQuantity: number) => {
+  //   try {
+  //     const response = await fetch(`/api/cart/${itemId}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ quantity: newQuantity }),
+  //     })
 
-      setCartItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item)))
+  //     if (!response.ok) throw new Error("Failed to update quantity")
 
-      toast({
-        title: "Success",
-        description: "Cart updated",
-      })
-    } catch (error) {
-      console.error("Error updating quantity:", error)
-      toast({
-        title: "Error",
-        description: "Failed to update cart",
-        variant: "destructive",
-      })
-    }
-  }
+  //     setCartItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item)))
 
-  // BACKEND INTEGRATION: This function would remove an item from the cart
-  // You would implement a proper API endpoint that connects to your database
-  // and removes the item from the cart
-  const removeItem = async (itemId: string) => {
-    try {
-      const response = await fetch(`/api/cart/${itemId}`, {
-        method: "DELETE",
-      })
+  //     toast({
+  //       title: "Success",
+  //       description: "Cart updated",
+  //     })
+  //   } catch (error) {
+  //     console.error("Error updating quantity:", error)
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to update cart",
+  //       variant: "destructive",
+  //     })
+  //   }
+  // }
 
-      if (!response.ok) throw new Error("Failed to remove item")
+  // // BACKEND INTEGRATION: This function would remove an item from the cart
+  // // You would implement a proper API endpoint that connects to your database
+  // // and removes the item from the cart
+  // const removeItem = async (itemId: string) => {
+  //   try {
+  //     const response = await fetch(`/api/cart/${itemId}`, {
+  //       method: "DELETE",
+  //     })
 
-      setCartItems((prev) => prev.filter((item) => item.id !== itemId))
+  //     if (!response.ok) throw new Error("Failed to remove item")
 
-      toast({
-        title: "Success",
-        description: "Item removed from cart",
-      })
-    } catch (error) {
-      console.error("Error removing item:", error)
-      toast({
-        title: "Error",
-        description: "Failed to remove item",
-        variant: "destructive",
-      })
-    }
-  }
+  //     setCartItems((prev) => prev.filter((item) => item.id !== itemId))
+
+  //     toast({
+  //       title: "Success",
+  //       description: "Item removed from cart",
+  //     })
+  //   } catch (error) {
+  //     console.error("Error removing item:", error)
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to remove item",
+  //       variant: "destructive",
+  //     })
+  //   }
+  // }
 
   const handleToggleWishlist = async (item: CartItem) => {
-    if (!user) return
+    if (!user) return;
 
-    setProcessingWishlist(item.productId)
+    setProcessingWishlist(item.productId);
 
     try {
-      const isInWishlist = wishlistItems.includes(item.productId)
+      const isInWishlist = wishlistItems.includes(item.productId);
 
       if (isInWishlist) {
         // Find the wishlist item ID first
-        const wishlistResponse = await fetch("/api/wishlist")
-        if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist")
+        const wishlistResponse = await fetch("/api/wishlist");
+        if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist");
 
-        const wishlistData = await wishlistResponse.json()
-        const wishlistItem = wishlistData.find((wItem: any) => wItem.productId === item.productId)
+        const wishlistData = await wishlistResponse.json();
+        const wishlistItem = wishlistData.find(
+          (wItem: any) => wItem.productId === item.productId
+        );
 
         if (wishlistItem) {
-          const deleteResponse = await fetch(`/api/wishlist/${wishlistItem.id}`, {
-            method: "DELETE",
-          })
+          const deleteResponse = await fetch(
+            `/api/wishlist/${wishlistItem.id}`,
+            {
+              method: "DELETE",
+            }
+          );
 
-          if (!deleteResponse.ok) throw new Error("Failed to remove from wishlist")
+          if (!deleteResponse.ok)
+            throw new Error("Failed to remove from wishlist");
 
-          setWishlistItems(wishlistItems.filter((id) => id !== item.productId))
+          setWishlistItems(wishlistItems.filter((id) => id !== item.productId));
           toast({
             title: "Removed from Wishlist",
             description: `${item.product.name} has been removed from your wishlist`,
-          })
+          });
         }
       } else {
         // Add to wishlist
@@ -183,52 +205,55 @@ export default function CartPage() {
             productImageUrl: item.product.imageUrl,
             productCategory: "category", // We don't have category in cart item, so use a default
           }),
-        })
+        });
 
-        if (!response.ok) throw new Error("Failed to add to wishlist")
+        if (!response.ok) throw new Error("Failed to add to wishlist");
 
-        setWishlistItems([...wishlistItems, item.productId])
+        setWishlistItems([...wishlistItems, item.productId]);
         toast({
           title: "Added to Wishlist",
           description: `${item.product.name} has been added to your wishlist`,
-        })
+        });
       }
     } catch (error) {
-      console.error("Error updating wishlist:", error)
+      console.error("Error updating wishlist:", error);
       toast({
         title: "Error",
         description: "Failed to update wishlist",
         variant: "destructive",
-      })
+      });
     } finally {
-      setProcessingWishlist(null)
+      setProcessingWishlist(null);
     }
-  }
+  };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0)
-  }
+    return cartItems.reduce(
+      (total, item) => total + item.product.price * item.quantity,
+      0
+    );
+  };
 
   const calculateShipping = () => {
-    const subtotal = calculateSubtotal()
-    return subtotal > 20000 ? 0 : 2000
-  }
+    const subtotal = calculateSubtotal();
+    return subtotal > 20000 ? 0 : 2000;
+  };
 
   const calculateTax = () => {
-    return calculateSubtotal() * 0.075
-  }
+    return calculateSubtotal() * 0.075;
+  };
 
   const calculateTotal = () => {
-    return calculateSubtotal() + calculateShipping() + calculateTax()
-  }
+    return calculateSubtotal() + calculateShipping() + calculateTax();
+  };
 
   // BACKEND INTEGRATION: This function would create an order from the cart items
   // You would implement a proper API endpoint that connects to your database
   // and creates an order, processes payment, and clears the cart
   const handleCheckout = async () => {
-    if (cartItems.length === 0) return
+    if (cartItems.length === 0) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     try {
       // In a real implementation, this would:
@@ -237,25 +262,26 @@ export default function CartPage() {
       // 3. Clear the cart
       // 4. Redirect to an order confirmation page
 
-      await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
 
       toast({
         title: "Order Placed",
         description: "Your order has been successfully placed!",
-      })
+      });
 
-      router.push("/orders")
+      router.push("/orders");
     } catch (error) {
-      console.error("Error during checkout:", error)
+      console.error("Error during checkout:", error);
       toast({
         title: "Checkout Failed",
-        description: "There was a problem processing your order. Please try again.",
+        description:
+          "There was a problem processing your order. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -264,7 +290,10 @@ export default function CartPage() {
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-2/3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="mb-4 p-4 border border-blue-100 rounded-lg animate-pulse">
+              <div
+                key={i}
+                className="mb-4 p-4 border border-blue-100 rounded-lg animate-pulse"
+              >
                 <div className="flex items-center">
                   <div className="h-24 w-24 bg-blue-100 rounded" />
                   <div className="ml-4 flex-1">
@@ -281,7 +310,7 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -293,8 +322,12 @@ export default function CartPage() {
           <div className="inline-flex justify-center items-center w-24 h-24 bg-blue-50 rounded-full mb-6">
             <ShoppingCart className="h-12 w-12 text-blue-500" />
           </div>
-          <h2 className="text-2xl font-medium text-blue-900 mb-4">Your cart is empty</h2>
-          <p className="text-blue-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
+          <h2 className="text-2xl font-medium text-blue-900 mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-blue-600 mb-8">
+            Looks like you haven't added any items to your cart yet.
+          </p>
           <Button asChild className="bg-blue-600 hover:bg-blue-700">
             <Link href="/products">Start Shopping</Link>
           </Button>
@@ -303,12 +336,19 @@ export default function CartPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3">
             {cartItems.map((item) => (
-              <Card key={item.id} className="mb-4 border-0 shadow-md overflow-hidden">
+              <Card
+                key={item.id}
+                className="mb-4 border-0 shadow-md overflow-hidden"
+              >
                 <CardContent className="p-4">
                   <div className="flex flex-col sm:flex-row items-center">
                     <div className="relative h-24 w-24 rounded-md overflow-hidden">
                       <Image
-                        src={item.product.imageUrl || "/placeholder.svg?height=200&width=200" || "/placeholder.svg"}
+                        src={
+                          item.product.imageUrl ||
+                          "/placeholder.svg?height=200&width=200" ||
+                          "/placeholder.svg"
+                        }
                         alt={item.product.name}
                         fill
                         className="object-cover"
@@ -321,14 +361,16 @@ export default function CartPage() {
                       >
                         {item.product.name}
                       </Link>
-                      <p className="text-blue-600 text-sm">₦{item.product.price.toLocaleString()}</p>
+                      <p className="text-blue-600 text-sm">
+                        ₦{item.product.price.toLocaleString()}
+                      </p>
                     </div>
                     <div className="flex items-center mt-4 sm:mt-0">
                       <Button
                         variant="outline"
                         size="icon"
                         className="h-8 w-8 rounded-r-none"
-                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        // onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                         disabled={item.quantity <= 1}
                       >
                         <Minus className="h-3 w-3" />
@@ -340,7 +382,7 @@ export default function CartPage() {
                         variant="outline"
                         size="icon"
                         className="h-8 w-8 rounded-l-none"
-                        onClick={() => updateQuantity(item.id, Math.min(item.product.quantity, item.quantity + 1))}
+                        // onClick={() => updateQuantity(item.id, Math.min(item.product.quantity, item.quantity + 1))}
                         disabled={item.quantity >= item.product.quantity}
                       >
                         <Plus className="h-3 w-3" />
@@ -353,7 +395,11 @@ export default function CartPage() {
                         className="ml-2"
                         onClick={() => handleToggleWishlist(item)}
                         disabled={processingWishlist === item.productId}
-                        aria-label={wishlistItems.includes(item.productId) ? "Remove from wishlist" : "Add to wishlist"}
+                        aria-label={
+                          wishlistItems.includes(item.productId)
+                            ? "Remove from wishlist"
+                            : "Add to wishlist"
+                        }
                       >
                         <Heart
                           className={`h-4 w-4 ${
@@ -368,7 +414,7 @@ export default function CartPage() {
                         variant="ghost"
                         size="icon"
                         className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => removeItem(item.id)}
+                        // onClick={() => removeItem(item.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -382,28 +428,38 @@ export default function CartPage() {
           <div className="lg:w-1/3">
             <Card className="border-0 shadow-md sticky top-24">
               <CardHeader>
-                <CardTitle className="text-xl text-blue-900">Order Summary</CardTitle>
+                <CardTitle className="text-xl text-blue-900">
+                  Order Summary
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-blue-700">Subtotal</span>
-                    <span className="font-medium text-blue-900">₦{calculateSubtotal().toLocaleString()}</span>
+                    <span className="font-medium text-blue-900">
+                      ₦{calculateSubtotal().toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-blue-700">Shipping</span>
                     <span className="font-medium text-blue-900">
-                      {calculateShipping() === 0 ? "Free" : `₦${calculateShipping().toLocaleString()}`}
+                      {calculateShipping() === 0
+                        ? "Free"
+                        : `₦${calculateShipping().toLocaleString()}`}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-blue-700">Tax</span>
-                    <span className="font-medium text-blue-900">₦{calculateTax().toLocaleString()}</span>
+                    <span className="font-medium text-blue-900">
+                      ₦{calculateTax().toLocaleString()}
+                    </span>
                   </div>
                   <Separator className="my-2 bg-blue-100" />
                   <div className="flex justify-between">
                     <span className="font-medium text-blue-900">Total</span>
-                    <span className="font-bold text-blue-900">₦{calculateTotal().toLocaleString()}</span>
+                    <span className="font-bold text-blue-900">
+                      ₦{calculateTotal().toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -431,6 +487,5 @@ export default function CartPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-
