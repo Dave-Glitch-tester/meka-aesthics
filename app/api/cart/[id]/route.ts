@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 
 // Mock cart data (same as in route.ts)
 const cartItems = [
@@ -26,51 +26,62 @@ const cartItems = [
     },
     quantity: 2,
   },
-]
+];
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = params.id
-    const itemIndex = cartItems.findIndex((item) => item.id === id)
+    const id = params.id;
+    const itemIndex = cartItems.findIndex((item) => item.id === id);
 
     if (itemIndex === -1) {
-      return NextResponse.json({ message: "Cart item not found" }, { status: 404 })
+      return NextResponse.json(
+        { message: "Cart item not found" },
+        { status: 404 }
+      );
     }
 
-    const data = await request.json()
+    const data = await request.json();
 
     if (data.quantity !== undefined) {
       // Ensure quantity is valid
       if (data.quantity <= 0) {
-        return NextResponse.json({ message: "Quantity must be greater than 0" }, { status: 400 })
+        return NextResponse.json(
+          { message: "Quantity must be greater than 0" },
+          { status: 400 }
+        );
       }
 
       // Check if quantity exceeds available stock
       if (data.quantity > cartItems[itemIndex].product.quantity) {
-        data.quantity = cartItems[itemIndex].product.quantity
+        data.quantity = cartItems[itemIndex].product.quantity;
       }
 
-      cartItems[itemIndex].quantity = data.quantity
+      cartItems[itemIndex].quantity = data.quantity;
     }
 
-    return NextResponse.json(cartItems[itemIndex])
+    return NextResponse.json(cartItems[itemIndex]);
   } catch (error) {
-    console.error("Error updating cart item:", error)
-    return NextResponse.json({ message: "Failed to update cart item" }, { status: 500 })
+    console.error("Error updating cart item:", error);
+    return NextResponse.json(
+      { message: "Failed to update cart item" },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  const id = params.id
-  const itemIndex = cartItems.findIndex((item) => item.id === id)
+// export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+//   const id = params.id
+//   const itemIndex = cartItems.findIndex((item) => item.id === id)
 
-  if (itemIndex === -1) {
-    return NextResponse.json({ message: "Cart item not found" }, { status: 404 })
-  }
+//   if (itemIndex === -1) {
+//     return NextResponse.json({ message: "Cart item not found" }, { status: 404 })
+//   }
 
-  // Remove item from cart
-  const removedItem = cartItems.splice(itemIndex, 1)[0]
+//   // Remove item from cart
+//   const removedItem = cartItems.splice(itemIndex, 1)[0]
 
-  return NextResponse.json(removedItem)
-}
-
+//   return NextResponse.json(removedItem)
+// }
