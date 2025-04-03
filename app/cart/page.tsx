@@ -67,6 +67,7 @@ export default function CartPage() {
       const response = await fetch("/api/cart");
       if (!response.ok) throw new Error("Failed to fetch cart");
       const data = await response.json();
+      console.log(data);
       setCartItems(data);
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -101,60 +102,65 @@ export default function CartPage() {
   // You would implement a proper API endpoint that connects to your database
   // and updates the quantity with validation against available stock
 
-  // const updateQuantity = async (itemId: string, newQuantity: number) => {
-  //   try {
-  //     const response = await fetch(`/api/cart/${itemId}`, {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ quantity: newQuantity }),
-  //     })
+  const updateQuantity = async (itemId: string, newQuantity: number) => {
+    try {
+      const response = await fetch(`/api/cart/${itemId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ quantity: newQuantity }),
+      });
 
-  //     if (!response.ok) throw new Error("Failed to update quantity")
+      if (!response.ok) throw new Error("Failed to update quantity");
 
-  //     setCartItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item)))
+      setCartItems((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, quantity: newQuantity } : item
+        )
+      );
 
-  //     toast({
-  //       title: "Success",
-  //       description: "Cart updated",
-  //     })
-  //   } catch (error) {
-  //     console.error("Error updating quantity:", error)
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to update cart",
-  //       variant: "destructive",
-  //     })
-  //   }
-  // }
+      toast({
+        title: "Success",
+        description: "Cart updated",
+      });
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update cart",
+        variant: "destructive",
+      });
+    }
+  };
 
   // // BACKEND INTEGRATION: This function would remove an item from the cart
   // // You would implement a proper API endpoint that connects to your database
   // // and removes the item from the cart
-  // const removeItem = async (itemId: string) => {
-  //   try {
-  //     const response = await fetch(`/api/cart/${itemId}`, {
-  //       method: "DELETE",
-  //     })
 
-  //     if (!response.ok) throw new Error("Failed to remove item")
+  const removeItem = async (itemId: string) => {
+    try {
+      const response = await fetch(`/api/cart/${itemId}`, {
+        method: "DELETE",
+      });
 
-  //     setCartItems((prev) => prev.filter((item) => item.id !== itemId))
+      if (!response.ok) throw new Error("Failed to remove item");
 
-  //     toast({
-  //       title: "Success",
-  //       description: "Item removed from cart",
-  //     })
-  //   } catch (error) {
-  //     console.error("Error removing item:", error)
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to remove item",
-  //       variant: "destructive",
-  //     })
-  //   }
-  // }
+      setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+
+      toast({
+        title: "Success",
+        description: "Item removed from cart",
+      });
+    } catch (error) {
+      console.error("Error removing item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove item",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleToggleWishlist = async (item: CartItem) => {
     if (!user) return;
@@ -370,7 +376,12 @@ export default function CartPage() {
                         variant="outline"
                         size="icon"
                         className="h-8 w-8 rounded-r-none"
-                        // onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        onClick={() =>
+                          updateQuantity(
+                            item.id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
                         disabled={item.quantity <= 1}
                       >
                         <Minus className="h-3 w-3" />
@@ -382,7 +393,12 @@ export default function CartPage() {
                         variant="outline"
                         size="icon"
                         className="h-8 w-8 rounded-l-none"
-                        // onClick={() => updateQuantity(item.id, Math.min(item.product.quantity, item.quantity + 1))}
+                        onClick={() =>
+                          updateQuantity(
+                            item.id,
+                            Math.min(item.product.quantity, item.quantity + 1)
+                          )
+                        }
                         disabled={item.quantity >= item.product.quantity}
                       >
                         <Plus className="h-3 w-3" />
@@ -414,7 +430,7 @@ export default function CartPage() {
                         variant="ghost"
                         size="icon"
                         className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        // onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

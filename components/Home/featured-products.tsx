@@ -1,68 +1,70 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { ShoppingCart, Heart } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/use-auth"
-import { useRouter } from "next/navigation"
-import type { Product } from "@/types/product"
-import LoadingSpinner from "./loading-spinner"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ShoppingCart, Heart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import type { Product } from "@/types/product";
+import LoadingSpinner from "../loading-spinner";
 
 export default function FeaturedProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [wishlistItems, setWishlistItems] = useState<string[]>([]) // Array of product IDs in wishlist
-  const [processingWishlist, setProcessingWishlist] = useState<string | null>(null)
-  const { toast } = useToast()
-  const { user } = useAuth()
-  const router = useRouter()
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [wishlistItems, setWishlistItems] = useState<string[]>([]); // Array of product IDs in wishlist
+  const [processingWishlist, setProcessingWishlist] = useState<string | null>(
+    null
+  );
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("/api/products?featured=true")
-        if (!response.ok) throw new Error("Failed to fetch products")
-        const data = await response.json()
-        setProducts(data.slice(0, 4)) // Only show 4 featured products
+        const response = await fetch("/api/products?featured=true");
+        if (!response.ok) throw new Error("Failed to fetch products");
+        const data = await response.json();
+        setProducts(data.slice(0, 4)); // Only show 4 featured products
       } catch (error) {
-        console.error("Error fetching products:", error)
+        console.error("Error fetching products:", error);
         toast({
           title: "Error",
           description: "Failed to load featured products",
           variant: "destructive",
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [toast])
+    fetchProducts();
+  }, [toast]);
 
   // Fetch wishlist items when user is logged in
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        const response = await fetch("/api/wishlist")
+        const response = await fetch("/api/wishlist");
         if (response.ok) {
-          const data = await response.json()
+          const data = await response.json();
           // Extract product IDs from wishlist items
-          const wishlistProductIds = data.map((item: any) => item.productId)
-          setWishlistItems(wishlistProductIds)
+          const wishlistProductIds = data.map((item: any) => item.productId);
+          setWishlistItems(wishlistProductIds);
         }
       } catch (error) {
-        console.error("Error fetching wishlist:", error)
+        console.error("Error fetching wishlist:", error);
       }
-    }
+    };
 
-    fetchWishlist()
-  }, [user])
+    fetchWishlist();
+  }, [user]);
 
   const handleAddToCart = async (productId: string) => {
     if (!user) {
@@ -70,9 +72,9 @@ export default function FeaturedProducts() {
         title: "Login Required",
         description: "Please login to add items to your cart",
         variant: "default",
-      })
-      router.push(`/login?redirect=/products/${productId}`)
-      return
+      });
+      router.push(`/login?redirect=/products/${productId}`);
+      return;
     }
 
     try {
@@ -82,24 +84,24 @@ export default function FeaturedProducts() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ productId, quantity: 1 }),
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to add to cart")
+      if (!response.ok) throw new Error("Failed to add to cart");
 
       toast({
         title: "Success",
         description: "Item added to cart",
         variant: "default",
-      })
+      });
     } catch (error) {
-      console.error("Error adding to cart:", error)
+      console.error("Error adding to cart:", error);
       toast({
         title: "Error",
         description: "Failed to add item to cart",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleToggleWishlist = async (product: Product) => {
     if (!user) {
@@ -107,36 +109,42 @@ export default function FeaturedProducts() {
         title: "Login Required",
         description: "Please login to manage your wishlist",
         variant: "default",
-      })
-      router.push(`/login?redirect=/`)
-      return
+      });
+      router.push(`/login?redirect=/`);
+      return;
     }
 
-    setProcessingWishlist(product.id)
+    setProcessingWishlist(product.id);
 
     try {
-      const isInWishlist = wishlistItems.includes(product.id)
+      const isInWishlist = wishlistItems.includes(product.id);
 
       if (isInWishlist) {
         // Find the wishlist item ID first
-        const wishlistResponse = await fetch("/api/wishlist")
-        if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist")
+        const wishlistResponse = await fetch("/api/wishlist");
+        if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist");
 
-        const wishlistData = await wishlistResponse.json()
-        const wishlistItem = wishlistData.find((item: any) => item.productId === product.id)
+        const wishlistData = await wishlistResponse.json();
+        const wishlistItem = wishlistData.find(
+          (item: any) => item.productId === product.id
+        );
 
         if (wishlistItem) {
-          const deleteResponse = await fetch(`/api/wishlist/${wishlistItem.id}`, {
-            method: "DELETE",
-          })
+          const deleteResponse = await fetch(
+            `/api/wishlist/${wishlistItem.id}`,
+            {
+              method: "DELETE",
+            }
+          );
 
-          if (!deleteResponse.ok) throw new Error("Failed to remove from wishlist")
+          if (!deleteResponse.ok)
+            throw new Error("Failed to remove from wishlist");
 
-          setWishlistItems(wishlistItems.filter((id) => id !== product.id))
+          setWishlistItems(wishlistItems.filter((id) => id !== product.id));
           toast({
             title: "Removed from Wishlist",
             description: `${product.name} has been removed from your wishlist`,
-          })
+          });
         }
       } else {
         // Add to wishlist
@@ -152,37 +160,41 @@ export default function FeaturedProducts() {
             productImageUrl: product.imageUrl,
             productCategory: product.category,
           }),
-        })
+        });
 
-        if (!response.ok) throw new Error("Failed to add to wishlist")
+        if (!response.ok) throw new Error("Failed to add to wishlist");
 
-        setWishlistItems([...wishlistItems, product.id])
+        setWishlistItems([...wishlistItems, product.id]);
         toast({
           title: "Added to Wishlist",
           description: `${product.name} has been added to your wishlist`,
-        })
+        });
       }
     } catch (error) {
-      console.error("Error updating wishlist:", error)
+      console.error("Error updating wishlist:", error);
       toast({
         title: "Error",
         description: "Failed to update wishlist",
         variant: "destructive",
-      })
+      });
     } finally {
-      setProcessingWishlist(null)
+      setProcessingWishlist(null);
     }
-  }
+  };
 
   if (loading) {
     return (
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">Featured Products</h2>
+          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
+            Featured Products
+          </h2>
           <div className="flex justify-center mb-8">
             <LoadingSpinner size={40} />
           </div>
-          <p className="text-center text-blue-700 mb-8">Loading our featured collections...</p>
+          <p className="text-center text-blue-700 mb-8">
+            Loading our featured collections...
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[...Array(4)].map((_, i) => (
               <Card key={i} className="rounded-lg overflow-hidden">
@@ -200,19 +212,41 @@ export default function FeaturedProducts() {
           </div>
         </div>
       </section>
-    )
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
+            Featured Products
+          </h2>
+          <p className="text-center text-blue-700 mb-8">
+            No featured products available at the moment.
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-blue-900 mb-12 text-center">Featured Products</h2>
+        <h2 className="text-3xl font-bold text-blue-900 mb-12 text-center">
+          Featured Products
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product) => (
-            <Card key={product.id} className="rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <Card
+              key={product.id}
+              className="rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg"
+            >
               <div className="relative h-64 overflow-hidden group">
                 <Image
-                  src={product.imageUrl || "/placeholder.svg?height=400&width=400"}
+                  src={
+                    product.imageUrl || "/placeholder.svg?height=400&width=400"
+                  }
                   alt={product.name}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -222,12 +256,16 @@ export default function FeaturedProducts() {
                 {/* Wishlist button */}
                 <button
                   onClick={(e) => {
-                    e.preventDefault()
-                    handleToggleWishlist(product)
+                    e.preventDefault();
+                    handleToggleWishlist(product);
                   }}
                   disabled={processingWishlist === product.id}
                   className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-pink-50 transition-colors z-10"
-                  aria-label={wishlistItems.includes(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-label={
+                    wishlistItems.includes(product.id)
+                      ? "Remove from wishlist"
+                      : "Add to wishlist"
+                  }
                 >
                   <Heart
                     className={`h-5 w-5 ${
@@ -245,11 +283,19 @@ export default function FeaturedProducts() {
                 >
                   {product.name}
                 </Link>
-                <p className="text-blue-600 text-sm line-clamp-2 mt-1">{product.description}</p>
+                <p className="text-blue-600 text-sm line-clamp-2 mt-1">
+                  {product.description}
+                </p>
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                <p className="text-lg font-bold text-blue-800">₦{product.price.toLocaleString()}</p>
-                <Button onClick={() => handleAddToCart(product.id)} className="bg-blue-600 hover:bg-blue-700" size="sm">
+                <p className="text-lg font-bold text-blue-800">
+                  ₦{product.price.toLocaleString()}
+                </p>
+                <Button
+                  onClick={() => handleAddToCart(product.id)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                  size="sm"
+                >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Add to Cart
                 </Button>
@@ -264,6 +310,5 @@ export default function FeaturedProducts() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

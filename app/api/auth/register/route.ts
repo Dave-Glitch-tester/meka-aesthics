@@ -1,54 +1,61 @@
-import { NextResponse } from "next/server"
-
-// Mock users data (same as in login/route.ts)
-const users = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    password: "password123", // In a real app, this would be hashed
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    password: "password456", // In a real app, this would be hashed
-  },
-]
+import { NextResponse } from "next/server";
+import connectDb from "@/db/connect";
+import users from "@/models/users";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json()
+    await connectDb();
+    const { name, email, password } = await request.json();
 
     if (!name || !email || !password) {
-      return NextResponse.json({ message: "Name, email, and password are required" }, { status: 400 })
+      return NextResponse.json(
+        { message: "Name, email, and password are required" },
+        { status: 400 }
+      );
     }
 
-    // Check if email already exists
-    const existingUser = users.find((u) => u.email === email)
-
+    // Check if the email is already in use
+    const existingUser = await users.findOne({ email });
     if (existingUser) {
-      return NextResponse.json({ message: "Email already in use" }, { status: 409 })
+      return NextResponse.json(
+        { message: "Email already in use" },
+        { status: 409 }
+      );
     }
 
-    // Create new user
-    const newUser = {
-      id: (users.length + 1).toString(),
-      name,
+    // Check if this is the first user
+    const isFirstUser = (await users.countDocuments()) === 0;
+
+    // Create the new user
+    const newUser = new users({
       email,
-      password, // In a real app, this would be hashed
-    }
+      password,
+      name,
+      role: isFirstUser ? "admin" : "user",
+    });
 
-    // Add user to mock database
-    users.push(newUser)
+    await newUser.save();
 
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = newUser
+    const token = newUser.createToken();
 
-    return NextResponse.json(userWithoutPassword, { status: 201 })
+    // Create a response object
+    const response = NextResponse.json(
+      { message: "User registered successfully", token },
+      { status: 201 }
+    );
+
+    // Set cookie on response
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24, // 1 day
+    });
+
+    return response;
   } catch (error) {
-    console.error("Registration error:", error)
-    return NextResponse.json({ message: "An error occurred during registration" }, { status: 500 })
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { message: "An error occurred during registration" },
+      { status: 500 }
+    );
   }
 }
-

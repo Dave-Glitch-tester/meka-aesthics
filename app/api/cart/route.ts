@@ -1,114 +1,91 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+import connectDb from "@/db/connect";
+import Cart from "@/models/cart";
+import Product from "@/models/product"; // Assuming you have a Product model
 
-// Mock cart data
-const cartItems = [
-  {
-    id: "1",
-    productId: "1",
-    product: {
-      id: "1",
-      name: "Azure Ceramic Vase",
-      price: 49.99,
-      imageUrl: "/placeholder.svg?height=400&width=400",
-      quantity: 15,
-    },
-    quantity: 1,
-  },
-  {
-    id: "2",
-    productId: "3",
-    product: {
-      id: "3",
-      name: "Navy Blue Table Lamp",
-      price: 79.99,
-      imageUrl: "/placeholder.svg?height=400&width=400",
-      quantity: 10,
-    },
-    quantity: 2,
-  },
-]
-
-export async function GET() {
-  // BACKEND INTEGRATION: In a real app, this would fetch the cart for the authenticated user
-  // from your database, filtering by the user's ID
-  return NextResponse.json(cartItems)
-}
-
-export async function POST(request: Request) {
+// GET request to fetch the cart for the authenticated user
+export async function GET(request: Request) {
   try {
-    const data = await request.json()
+    await connectDb();
 
-    if (!data.productId || !data.quantity) {
-      return NextResponse.json({ message: "Product ID and quantity are required" }, { status: 400 })
-    }
+    // Replace this with actual user authentication logic
+    const userId = "authenticated-user-id"; // Replace with the authenticated user's ID
 
-    // Check if product exists in mock products
-    const products = [
-      {
-        id: "1",
-        name: "Azure Ceramic Vase",
-        price: 49.99,
-        imageUrl: "/placeholder.svg?height=400&width=400",
-        quantity: 15,
-      },
-      {
-        id: "2",
-        name: "Sapphire Throw Pillow",
-        price: 29.99,
-        imageUrl: "/placeholder.svg?height=400&width=400",
-        quantity: 25,
-      },
-      {
-        id: "3",
-        name: "Navy Blue Table Lamp",
-        price: 79.99,
-        imageUrl: "/placeholder.svg?height=400&width=400",
-        quantity: 10,
-      },
-      {
-        id: "4",
-        name: "Teal Glass Candle Holder",
-        price: 19.99,
-        imageUrl: "/placeholder.svg?height=400&width=400",
-        quantity: 30,
-      },
-    ]
+    // Fetch the cart items for the user
+    const cartItems = await Cart.find({ userId }).populate("product");
 
-    const product = products.find((p) => p.id === data.productId)
-
-    if (!product) {
-      return NextResponse.json({ message: "Product not found" }, { status: 404 })
-    }
-
-    // Check if product is already in cart
-    const existingItemIndex = cartItems.findIndex((item) => item.productId === data.productId)
-
-    if (existingItemIndex !== -1) {
-      // Update quantity if already in cart
-      cartItems[existingItemIndex].quantity += data.quantity
-
-      // Check if quantity exceeds available stock
-      if (cartItems[existingItemIndex].quantity > product.quantity) {
-        cartItems[existingItemIndex].quantity = product.quantity
-      }
-
-      return NextResponse.json(cartItems[existingItemIndex])
-    }
-
-    // Add new item to cart
-    const newItem = {
-      id: (cartItems.length + 1).toString(),
-      productId: data.productId,
-      product,
-      quantity: Math.min(data.quantity, product.quantity),
-    }
-
-    cartItems.push(newItem)
-
-    return NextResponse.json(newItem, { status: 201 })
+    return NextResponse.json(cartItems);
   } catch (error) {
-    console.error("Error adding to cart:", error)
-    return NextResponse.json({ message: "Failed to add item to cart" }, { status: 500 })
+    console.error("Error fetching cart items:", error);
+    return NextResponse.json(
+      { message: "Failed to fetch cart items" },
+      { status: 500 }
+    );
   }
 }
 
+// POST request to add an item to the cart
+export async function POST(request: Request) {
+  try {
+    await connectDb(); // Ensure database connection
+    const data = await request.json();
+
+    if (!data.productId || !data.quantity) {
+      return NextResponse.json(
+        { message: "Product ID and quantity are required" },
+        { status: 400 }
+      );
+    }
+
+    // Replace this with actual user authentication logic
+    const userId = request.headers.get("x-user-id");
+
+    // Check if the product exists
+    const product = await Product.findById(data.productId);
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if the product is already in the cart
+    const existingCartItem = await Cart.findOne({
+      userId,
+      "product.id": data.productId,
+    });
+
+    if (existingCartItem) {
+      // Update the quantity if the product is already in the cart
+      existingCartItem.quantity += data.quantity;
+
+      // Ensure the quantity does not exceed available stock
+      if (existingCartItem.quantity > product.quantity) {
+        existingCartItem.quantity = product.quantity;
+      }
+
+      await existingCartItem.save();
+      return NextResponse.json(existingCartItem);
+    }
+
+    // Add a new item to the cart
+    const newCartItem = await Cart.create({
+      userId,
+      product: {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: product.quantity,
+      },
+      quantity: Math.min(data.quantity, product.quantity),
+    });
+
+    return NextResponse.json(newCartItem, { status: 201 });
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    return NextResponse.json(
+      { message: "Failed to add item to cart" },
+      { status: 500 }
+    );
+  }
+}

@@ -1,25 +1,45 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import JWT from "jsonwebtoken";
+import connectDb from "@/db/connect";
+import User from "@/models/users";
 
-// For demo purposes, we'll return a mock user
-// In a real app, this would verify the session or JWT token
+const SECRET = process.env.JWT_SECRET || "default_secret_key";
+
 export async function GET() {
-  // Mock authenticated user
-  const user = {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    role: "user", // Default role is user
+  try {
+    // Get the token from cookies
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token");
+
+    if (!token) {
+      return NextResponse.json(
+        { message: "Not authenticated" },
+        { status: 401 }
+      );
+    }
+
+    // Verify the JWT token
+    const decoded = JWT.verify(token.value, SECRET) as { userId: string };
+
+    // Connect to database
+    await connectDb();
+
+    // Find the user
+    const user = await User.findById(decoded.userId)
+      .select("-password") // Exclude password from the response
+      .lean(); // Convert to plain JavaScript object
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Auth error:", error);
+    return NextResponse.json(
+      { message: "Authentication failed" },
+      { status: 401 }
+    );
   }
-
-  // For demo purposes, let's also have an admin user
-  // In a real implementation, this would come from your database
-  if (user.email === "admin@example.com") {
-    user.role = "admin"
-  }
-
-  // Simulate not authenticated (comment out to simulate logged in)
-  // return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
-
-  return NextResponse.json(user)
 }
-

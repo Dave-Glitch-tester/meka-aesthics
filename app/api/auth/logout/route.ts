@@ -1,7 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 
-export async function POST() {
-  // In a real app, this would clear the session or invalidate the JWT token
-  return NextResponse.json({ success: true })
+export async function POST(req: Request) {
+  const response = NextResponse.json({ success: true });
+
+  // Clear the JWT cookie
+  response.cookies.set("token", "", {
+    httpOnly: true,
+    secure: true,
+    expires: new Date(0), // Expire immediately
+  });
+
+  return response;
 }
-

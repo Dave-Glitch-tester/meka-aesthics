@@ -1,102 +1,110 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useCallback, useRef } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Star, ChevronLeft, ChevronRight } from "lucide-react"
-import LoadingSpinner from "./loading-spinner"
+import { useEffect, useState, useCallback, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import LoadingSpinner from "../loading-spinner";
 
 interface Review {
-  id: string
-  productId: string
-  productName: string
-  userName: string
-  userRole: string
-  content: string
-  rating: number
-  avatar: string
+  id: string;
+  productId: string;
+  productName: string;
+  userName: string;
+  userRole: string;
+  content: string;
+  rating: number;
+  avatar: string;
 }
 
 export default function TestimonialSection() {
-  const [testimonials, setTestimonials] = useState<Review[]>([])
-  const [loading, setLoading] = useState(true)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const carouselRef = useRef<HTMLDivElement>(null)
+  const [testimonials, setTestimonials] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   // Fetch testimonials
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const response = await fetch("/api/reviews?featured=true")
-        if (!response.ok) throw new Error("Failed to fetch testimonials")
-        const data = await response.json()
+        const response = await fetch("/api/reviews?featured=true");
+        if (!response.ok) throw new Error("Failed to fetch testimonials");
+        const data = await response.json();
 
         // Get the reviews with highest ratings
-        const topReviews = data.sort((a: Review, b: Review) => b.rating - a.rating).slice(0, 6)
+        const topReviews = data
+          .sort((a: Review, b: Review) => b.rating - a.rating)
+          .slice(0, 6);
 
-        setTestimonials(topReviews)
+        setTestimonials(topReviews);
       } catch (error) {
-        console.error("Error fetching testimonials:", error)
+        console.error("Error fetching testimonials:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchTestimonials()
-  }, [])
+    fetchTestimonials();
+  }, []);
 
   // Auto-slide functionality
   const nextSlide = useCallback(() => {
-    setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length)
-  }, [testimonials.length])
+    setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+  }, [testimonials.length]);
 
   const prevSlide = useCallback(() => {
-    setActiveIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length)
-  }, [testimonials.length])
+    setActiveIndex(
+      (prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length
+    );
+  }, [testimonials.length]);
 
   // Set up auto-sliding
   useEffect(() => {
     if (testimonials.length > 0) {
       timerRef.current = setInterval(() => {
-        nextSlide()
-      }, 5000) // Change slide every 5 seconds
+        nextSlide();
+      }, 5000); // Change slide every 5 seconds
     }
 
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current)
+        clearInterval(timerRef.current);
       }
-    }
-  }, [testimonials.length, nextSlide])
+    };
+  }, [testimonials.length, nextSlide]);
 
   // Pause auto-sliding when hovering over carousel
   const pauseAutoSlide = () => {
     if (timerRef.current) {
-      clearInterval(timerRef.current)
+      clearInterval(timerRef.current);
     }
-  }
+  };
 
   const resumeAutoSlide = () => {
     if (timerRef.current) {
-      clearInterval(timerRef.current)
+      clearInterval(timerRef.current);
     }
     timerRef.current = setInterval(() => {
-      nextSlide()
-    }, 5000)
-  }
+      nextSlide();
+    }, 5000);
+  };
 
   if (loading) {
     return (
       <section className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">What Our Customers Say</h2>
+          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
+            What Our Customers Say
+          </h2>
           <div className="flex justify-center mb-8">
             <LoadingSpinner size={40} />
           </div>
-          <p className="text-center text-blue-700 mb-8">Loading customer reviews...</p>
+          <p className="text-center text-blue-700 mb-8">
+            Loading customer reviews...
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[...Array(3)].map((_, i) => (
               <Card key={i} className="bg-white border-blue-100 shadow-sm">
@@ -118,17 +126,30 @@ export default function TestimonialSection() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   if (testimonials.length === 0) {
-    return null
+    return (
+      <section className="py-20 bg-blue-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
+            What Our Customers Say
+          </h2>
+          <p className="text-center text-blue-700 mb-8">
+            No reviews uploaded yet.
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
     <section className="py-20 bg-blue-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-blue-900 mb-12 text-center">What Our Customers Say</h2>
+        <h2 className="text-3xl font-bold text-blue-900 mb-12 text-center">
+          What Our Customers Say
+        </h2>
 
         <div
           className="relative max-w-4xl mx-auto"
@@ -176,12 +197,16 @@ export default function TestimonialSection() {
                           <Star
                             key={i}
                             className={`h-5 w-5 ${
-                              i < testimonial.rating ? "fill-blue-500 text-blue-500" : "fill-gray-200 text-gray-200"
+                              i < testimonial.rating
+                                ? "fill-blue-500 text-blue-500"
+                                : "fill-gray-200 text-gray-200"
                             }`}
                           />
                         ))}
                       </div>
-                      <p className="text-blue-700 mb-6 italic">"{testimonial.content}"</p>
+                      <p className="text-blue-700 mb-6 italic">
+                        "{testimonial.content}"
+                      </p>
                       <div className="flex items-center">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden mr-4">
                           <Image
@@ -192,8 +217,12 @@ export default function TestimonialSection() {
                           />
                         </div>
                         <div>
-                          <h4 className="font-medium text-blue-900">{testimonial.userName}</h4>
-                          <p className="text-sm text-blue-600">{testimonial.userRole}</p>
+                          <h4 className="font-medium text-blue-900">
+                            {testimonial.userName}
+                          </h4>
+                          <p className="text-sm text-blue-600">
+                            {testimonial.userRole}
+                          </p>
                           <Link
                             href={`/products/${testimonial.productId}`}
                             className="text-xs text-blue-500 hover:underline mt-1 inline-block"
@@ -225,6 +254,5 @@ export default function TestimonialSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

@@ -1,39 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Pencil, Trash, Plus, Search, Filter, Upload } from "lucide-react"
-import PageLoading from "@/components/page-loading"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Pencil, Trash, Plus, Search, Filter, Upload } from "lucide-react";
+import PageLoading from "@/components/page-loading";
 
 interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  imageUrl: string
-  category: string
-  quantity: number
-  featured: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  quantity: number;
+  featured: boolean;
 }
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     id: "",
     name: "",
@@ -43,20 +47,20 @@ export default function AdminProductsPage() {
     category: "living-room",
     quantity: "",
     featured: false,
-  })
-  const [isEditing, setIsEditing] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("all")
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const { user, isAdmin } = useAuth()
-  const { toast } = useToast()
-  const router = useRouter()
+  const { user, isAdmin } = useAuth();
+  const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     // Check if user is admin, redirect if not
     if (!user) {
-      router.push("/login?redirect=/admin/products")
-      return
+      router.push("/login?redirect=/admin/products");
+      return;
     }
 
     if (!isAdmin) {
@@ -64,48 +68,49 @@ export default function AdminProductsPage() {
         title: "Access Denied",
         description: "You don't have permission to access this page",
         variant: "destructive",
-      })
-      router.push("/")
-      return
+      });
+      router.push("/");
+      return;
     }
 
-    fetchProducts()
-  }, [user, isAdmin, router, toast])
+    fetchProducts();
+  }, [user, isAdmin, router, toast]);
 
-  // BACKEND INTEGRATION: This function would fetch products from your database
   // You would implement a proper API endpoint that connects to your database
   // and returns the product data with proper pagination, filtering, etc.
   const fetchProducts = async () => {
     try {
-      const response = await fetch("/api/products")
+      const response = await fetch("/api/products");
       if (response.ok) {
-        const data = await response.json()
-        setProducts(data)
+        const data = await response.json();
+        setProducts(data);
       }
     } catch (error) {
-      console.error("Error fetching products:", error)
+      console.error("Error fetching products:", error);
       toast({
         title: "Error",
         description: "Failed to load products",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData({ ...formData, [name]: value })
-  }
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData({ ...formData, [name]: checked })
-  }
+    setFormData({ ...formData, [name]: checked });
+  };
 
   const resetForm = () => {
     setFormData({
@@ -117,27 +122,23 @@ export default function AdminProductsPage() {
       category: "living-room",
       quantity: "",
       featured: false,
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
-  // BACKEND INTEGRATION: This function would save product data to your database
-  // You would implement a proper API endpoint that connects to your database
-  // and handles both creating new products and updating existing ones
   const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+    e.preventDefault();
     try {
-      setLoading(true)
+      setLoading(true);
 
       const productData = {
         ...formData,
         price: Number.parseFloat(formData.price),
         quantity: Number.parseInt(formData.quantity),
-      }
+      };
 
-      const url = isEditing ? `/api/products/${formData.id}` : "/api/products"
-      const method = isEditing ? "PUT" : "POST"
+      const url = isEditing ? `/api/products/${formData.id}` : "/api/products";
+      const method = isEditing ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -145,7 +146,7 @@ export default function AdminProductsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(productData),
-      })
+      });
 
       if (response.ok) {
         toast({
@@ -153,26 +154,27 @@ export default function AdminProductsPage() {
           description: isEditing
             ? `${formData.name} has been updated successfully`
             : `${formData.name} has been added to your inventory`,
-        })
+        });
 
-        resetForm()
-        setShowForm(false)
-        fetchProducts()
+        resetForm();
+        setShowForm(false);
+        fetchProducts();
       } else {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to save product")
+        const error = await response.json();
+        throw new Error(error.message || "Failed to save product");
       }
     } catch (error) {
-      console.error("Error saving product:", error)
+      console.error("Error saving product:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save product",
+        description:
+          error instanceof Error ? error.message : "Failed to save product",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleEditProduct = (product: Product) => {
     setFormData({
@@ -184,51 +186,47 @@ export default function AdminProductsPage() {
       category: product.category,
       quantity: product.quantity.toString(),
       featured: product.featured,
-    })
-    setIsEditing(true)
-    setShowForm(true)
+    });
+    setIsEditing(true);
+    setShowForm(true);
 
     // Scroll to form
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  // BACKEND INTEGRATION: This function would delete a product from your database
-  // You would implement a proper API endpoint that connects to your database
   // and handles deleting products with proper validation and error handling
   const handleDeleteProduct = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}?`)) {
-      return
+      return;
     }
-
     try {
-      setLoading(true)
-
+      setLoading(true);
       const response = await fetch(`/api/products/${id}`, {
         method: "DELETE",
-      })
-
+      });
       if (response.ok) {
         toast({
           title: "Product Deleted",
           description: `${name} has been removed from your inventory`,
-        })
+        });
 
-        fetchProducts()
+        fetchProducts();
       } else {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to delete product")
+        const error = await response.json();
+        throw new Error(error.message || "Failed to delete product");
       }
     } catch (error) {
-      console.error("Error deleting product:", error)
+      console.error("Error deleting product:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete product",
+        description:
+          error instanceof Error ? error.message : "Failed to delete product",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // BACKEND INTEGRATION: This function would handle image uploads to your storage service
   // You would implement a proper API endpoint that connects to your storage service
@@ -238,32 +236,39 @@ export default function AdminProductsPage() {
     toast({
       title: "Image Upload",
       description: "This feature would upload images to your storage service",
-    })
-  }
+    });
+  };
 
   const filteredProducts = products
     .filter(
       (product) =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase()),
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .filter((product) => categoryFilter === "all" || product.category === categoryFilter)
+    .filter(
+      (product) =>
+        categoryFilter === "all" || product.category === categoryFilter
+    );
 
   if (loading && !products.length) {
-    return <PageLoading message="Loading products..." />
+    return <PageLoading message="Loading products..." />;
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">Product Management</h1>
-          <p className="text-gray-600">Add, edit, and manage your product inventory</p>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">
+            Product Management
+          </h1>
+          <p className="text-gray-600">
+            Add, edit, and manage your product inventory
+          </p>
         </div>
         <Button
           onClick={() => {
-            resetForm()
-            setShowForm(!showForm)
+            resetForm();
+            setShowForm(!showForm);
           }}
           className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700"
         >
@@ -313,7 +318,12 @@ export default function AdminProductsPage() {
 
                   <div>
                     <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        handleSelectChange("category", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -354,7 +364,12 @@ export default function AdminProductsPage() {
                         placeholder="/placeholder.svg?height=400&width=400"
                         className="flex-1"
                       />
-                      <Button type="button" variant="outline" onClick={handleImageUpload} className="flex-shrink-0">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleImageUpload}
+                        className="flex-shrink-0"
+                      >
                         <Upload className="h-4 w-4 mr-2" />
                         Upload
                       </Button>
@@ -382,7 +397,9 @@ export default function AdminProductsPage() {
                     <Switch
                       id="featured"
                       checked={formData.featured}
-                      onCheckedChange={(checked) => handleSwitchChange("featured", checked)}
+                      onCheckedChange={(checked) =>
+                        handleSwitchChange("featured", checked)
+                      }
                     />
                     <Label htmlFor="featured">Featured Product</Label>
                   </div>
@@ -394,8 +411,8 @@ export default function AdminProductsPage() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    resetForm()
-                    setShowForm(false)
+                    resetForm();
+                    setShowForm(false);
                   }}
                   className="mr-2"
                 >
@@ -441,43 +458,70 @@ export default function AdminProductsPage() {
 
       {filteredProducts.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">No products found. Try adjusting your search or filter.</p>
+          <p className="text-gray-500">
+            No products found. Try adjusting your search or filter.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden shadow-md border-0 hover:shadow-lg transition-shadow">
+            <Card
+              key={product.id}
+              className="overflow-hidden shadow-md border-0 hover:shadow-lg transition-shadow"
+            >
               <div className="relative h-48 w-full">
                 <Image
-                  src={product.imageUrl || "/placeholder.svg?height=400&width=400"}
+                  src={
+                    product.imageUrl || "/placeholder.svg?height=400&width=400"
+                  }
                   alt={product.name}
                   fill
                   className="object-cover"
                 />
                 {product.featured && (
-                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">Featured</div>
+                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                    Featured
+                  </div>
                 )}
               </div>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
-                  <span className="font-bold text-blue-600">₦{product.price.toLocaleString()}</span>
+                  <h3 className="font-semibold text-lg line-clamp-1">
+                    {product.name}
+                  </h3>
+                  <span className="font-bold text-blue-600">
+                    ₦{product.price.toLocaleString()}
+                  </span>
                 </div>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                  {product.description}
+                </p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">
                     Stock:{" "}
-                    <span className={product.quantity < 5 ? "text-red-500 font-medium" : ""}>{product.quantity}</span>
+                    <span
+                      className={
+                        product.quantity < 5 ? "text-red-500 font-medium" : ""
+                      }
+                    >
+                      {product.quantity}
+                    </span>
                   </span>
                   <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEditProduct(product)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEditProduct(product)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDeleteProduct(product.id, product.name)}
+                      onClick={() =>
+                        handleDeleteProduct(product.id, product.name)
+                      }
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
@@ -489,6 +533,5 @@ export default function AdminProductsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

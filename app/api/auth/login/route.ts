@@ -1,58 +1,58 @@
-import { NextResponse } from "next/server"
-
-// Mock users data
-const users = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    password: "password123", // In a real app, this would be hashed
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    password: "password456", // In a real app, this would be hashed
-  },
-  {
-    id: "admin1",
-    name: "Admin User",
-    email: "admin@example.com",
-    password: "password", // In a real app, this would be hashed
-    role: "admin",
-  },
-  {
-    id: "user1",
-    name: "Regular User",
-    email: "user@example.com",
-    password: "password", // In a real app, this would be hashed
-    role: "user",
-  },
-]
+import { NextResponse } from "next/server";
+import connectDb from "@/db/connect";
+import UserSchema from "@/models/users";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json()
+    await connectDb();
+    const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ message: "Email and password are required" }, { status: 400 })
+      return NextResponse.json(
+        { message: "Email and password are required" },
+        { status: 400 }
+      );
     }
 
     // Find user by email
-    const user = users.find((u) => u.email === email)
-
-    if (!user || user.password !== password) {
-      return NextResponse.json({ message: "Invalid email or password" }, { status: 401 })
+    const user = await UserSchema.findOne({ email });
+    if (!user) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    // In a real app, this would set a session or JWT token
-    // For demo purposes, we'll just return the user without the password
-    const { password: _, ...userWithoutPassword } = user
+    // Check if password matches
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
 
-    return NextResponse.json(userWithoutPassword)
+    // Generate token
+    const token = user.createToken();
+
+    // Create response object
+    const response = NextResponse.json(
+      { message: "Login successful", token },
+      { status: 200 }
+    );
+
+    // Set cookie
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24, // 1 day
+    });
+
+    return response;
   } catch (error) {
-    console.error("Login error:", error)
-    return NextResponse.json({ message: "An error occurred during login" }, { status: 500 })
+    console.error("Login error:", error);
+    return NextResponse.json(
+      { message: "An error occurred during login" },
+      { status: 500 }
+    );
   }
 }
-

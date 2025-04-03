@@ -1,4 +1,4 @@
-import LoadingSpinner from "@/components/loading-spinner"
+import LoadingSpinner from "@/components/loading-spinner";
 
 export default function Loading() {
   return (
@@ -15,7 +15,10 @@ export default function Loading() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="rounded-lg overflow-hidden border border-blue-100">
+          <div
+            key={i}
+            className="rounded-lg overflow-hidden border border-blue-100"
+          >
             <div className="h-64 bg-blue-100 animate-pulse" />
             <div className="p-4">
               <div className="h-6 bg-blue-100 animate-pulse rounded mb-2" />
@@ -29,6 +32,5 @@ export default function Loading() {
         ))}
       </div>
     </div>
-  )
+  );
 }
-

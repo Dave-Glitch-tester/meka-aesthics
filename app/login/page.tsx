@@ -1,66 +1,76 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/use-auth"
+import type React from "react";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-  const { toast } = useToast()
-  const { login, loginWithGoogle } = useAuth()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") || "/"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const { toast } = useToast();
+  const { login, loginWithGoogle } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      await login(email, password)
-      router.push(redirect)
+      await login(email, password);
+      router.push(redirect);
     } catch (error) {
-      console.error("Login error:", error)
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: "Invalid email or password",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleLogin = async () => {
-    setIsGoogleLoading(true)
+    setIsGoogleLoading(true);
     try {
-      await loginWithGoogle()
+      await loginWithGoogle();
       // The redirect is handled in the loginWithGoogle function
     } catch (error) {
       // Error is handled in the loginWithGoogle function
     } finally {
-      setIsGoogleLoading(false)
+      setIsGoogleLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="space-y-1 text-center pb-6">
-          <CardTitle className="text-2xl font-bold text-blue-900">Welcome Back</CardTitle>
-          <p className="text-sm text-gray-500">Sign in to your account to continue</p>
+          <CardTitle className="text-2xl font-bold text-blue-900">
+            Welcome Back
+          </CardTitle>
+          <p className="text-sm text-gray-500">
+            Sign in to your account to continue
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
@@ -80,7 +90,9 @@ export default function LoginPage() {
                 className="h-5 w-5"
               />
             )}
-            <span>{isGoogleLoading ? "Signing in..." : "Sign in with Google"}</span>
+            <span>
+              {isGoogleLoading ? "Signing in..." : "Sign in with Google"}
+            </span>
           </Button>
 
           <div className="relative">
@@ -88,7 +100,9 @@ export default function LoginPage() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              <span className="bg-white px-2 text-gray-500">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -112,7 +126,10 @@ export default function LoginPage() {
                 <Label htmlFor="password" className="text-gray-700">
                   Password
                 </Label>
-                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -126,7 +143,11 @@ export default function LoginPage() {
                 className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 py-5"
               />
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 py-6 text-base" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 py-6 text-base"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -137,28 +158,19 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          {/* Demo credentials */}
-          <div className="text-center text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
-            <p className="font-medium mb-1">Demo Credentials:</p>
-            <p className="mb-1">
-              <span className="font-semibold">Regular User:</span> user@example.com / password
-            </p>
-            <p>
-              <span className="font-semibold">Admin User:</span> admin@example.com / password
-            </p>
-          </div>
         </CardContent>
         <CardFooter className="flex justify-center border-t p-6">
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+            <Link
+              href="/register"
+              className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+            >
               Create an account
             </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-

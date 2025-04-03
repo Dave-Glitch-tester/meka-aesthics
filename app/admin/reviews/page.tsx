@@ -1,125 +1,143 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, StarHalf, Search, Filter, Trash } from "lucide-react"
-import PageLoading from "@/components/page-loading"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Star, StarHalf, Search, Filter, Trash } from "lucide-react";
+import PageLoading from "@/components/page-loading";
 
 interface Review {
-  id: string
-  productId: string
-  productName: string
-  userId: string
-  userName: string
-  userRole: string
-  rating: number
-  title: string
-  comment: string
-  content: string
-  createdAt: string
-  avatar: string
+  id: string;
+  productId: string;
+  productName: string;
+  userId: string;
+  userName: string;
+  role: string;
+  rating: number;
+  title: string;
+  comment: string;
+  content: string;
+  createdAt: string;
 }
 
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [ratingFilter, setRatingFilter] = useState("all")
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [ratingFilter, setRatingFilter] = useState("all");
 
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const router = useRouter()
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
-      router.push("/login?redirect=/admin/reviews")
-      return
+      router.push("/login?redirect=/admin/reviews");
+      return;
     }
 
-    fetchReviews()
-  }, [user, router])
+    fetchReviews();
+  }, [user, router]);
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch("/api/reviews")
+      const response = await fetch("/api/reviews");
       if (response.ok) {
-        const data = await response.json()
-        setReviews(data)
+        const data = await response.json();
+        console.log(data);
+        setReviews(data);
       }
     } catch (error) {
-      console.error("Error fetching reviews:", error)
+      console.error("Error fetching reviews:", error);
       toast({
         title: "Error",
         description: "Failed to load reviews",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDeleteReview = async (id: string, userName: string) => {
-    if (!confirm(`Are you sure you want to delete the review by ${userName}?`)) {
-      return
+    if (
+      !confirm(`Are you sure you want to delete the review by ${userName}?`)
+    ) {
+      return;
     }
-
     try {
-      setLoading(true)
+      setLoading(true);
 
       const response = await fetch(`/api/reviews/${id}`, {
         method: "DELETE",
-      })
+      });
 
       if (response.ok) {
         toast({
           title: "Review Deleted",
           description: `The review has been removed successfully`,
-        })
+        });
 
-        fetchReviews()
+        fetchReviews();
       } else {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to delete review")
+        const error = await response.json();
+        throw new Error(error.message || "Failed to delete review");
       }
     } catch (error) {
-      console.error("Error deleting review:", error)
+      console.error("Error deleting review:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete review",
+        description:
+          error instanceof Error ? error.message : "Failed to delete review",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const renderStars = (rating: number) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 !== 0
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)
+      stars.push(
+        <Star
+          key={`full-${i}`}
+          className="h-4 w-4 fill-yellow-400 text-yellow-400"
+        />
+      );
     }
 
     if (hasHalfStar) {
-      stars.push(<StarHalf key="half" className="h-4 w-4 fill-yellow-400 text-yellow-400" />)
+      stars.push(
+        <StarHalf
+          key="half"
+          className="h-4 w-4 fill-yellow-400 text-yellow-400"
+        />
+      );
     }
 
-    const emptyStars = 5 - stars.length
+    const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />)
+      stars.push(<Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />);
     }
 
-    return stars
-  }
+    return stars;
+  };
 
   const filteredReviews = reviews
     .filter(
@@ -127,19 +145,25 @@ export default function AdminReviewsPage() {
         review.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        review.productName.toLowerCase().includes(searchQuery.toLowerCase()),
+        review.productName.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .filter((review) => ratingFilter === "all" || review.rating === Number.parseInt(ratingFilter))
+    .filter(
+      (review) =>
+        ratingFilter === "all" ||
+        review.rating === Number.parseInt(ratingFilter)
+    );
 
   if (loading && !reviews.length) {
-    return <PageLoading message="Loading reviews..." />
+    return <PageLoading message="Loading reviews..." />;
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">Review Management</h1>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">
+            Review Management
+          </h1>
           <p className="text-gray-600">Manage customer reviews and feedback</p>
         </div>
       </div>
@@ -175,7 +199,9 @@ export default function AdminReviewsPage() {
 
       {filteredReviews.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">No reviews found. Try adjusting your search or filter.</p>
+          <p className="text-gray-500">
+            No reviews found. Try adjusting your search or filter.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -186,7 +212,7 @@ export default function AdminReviewsPage() {
                   <div className="flex items-center">
                     <div className="relative h-10 w-10 rounded-full overflow-hidden">
                       <Image
-                        src={review.avatar || "/placeholder.svg"}
+                        src="/placeholder.svg"
                         alt={review.userName}
                         fill
                         className="object-cover"
@@ -194,14 +220,16 @@ export default function AdminReviewsPage() {
                     </div>
                     <div className="ml-3">
                       <p className="font-medium">{review.userName}</p>
-                      <p className="text-xs text-gray-500">{review.userRole}</p>
+                      <p className="text-xs text-gray-500">{review.role}</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => handleDeleteReview(review.id, review.userName)}
+                    onClick={() =>
+                      handleDeleteReview(review.id, review.userName)
+                    }
                   >
                     <Trash className="h-4 w-4" />
                   </Button>
@@ -209,14 +237,20 @@ export default function AdminReviewsPage() {
 
                 <div className="flex items-center mb-2">
                   <div className="flex mr-2">{renderStars(review.rating)}</div>
-                  <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  <span className="text-sm text-gray-500">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
 
                 <h3 className="font-semibold mb-2">{review.title}</h3>
-                <p className="text-gray-700 mb-3 line-clamp-3">{review.comment}</p>
+                <p className="text-gray-700 mb-3 line-clamp-3">
+                  {review.comment}
+                </p>
 
                 <div className="mt-4 pt-3 border-t border-gray-100">
-                  <p className="text-sm text-blue-600">Product: {review.productName}</p>
+                  <p className="text-sm text-blue-600">
+                    Product: {review.productName}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -224,6 +258,5 @@ export default function AdminReviewsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-
