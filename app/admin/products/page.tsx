@@ -24,8 +24,8 @@ import { Pencil, Trash, Plus, Search, Filter, Upload } from "lucide-react";
 import PageLoading from "@/components/page-loading";
 
 interface Product {
-  id: string;
-  name: string;
+  _id: string;
+  productName: string;
   description: string;
   price: number;
   imageUrl: string;
@@ -39,8 +39,8 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
+    _id: "",
+    productName: "",
     description: "",
     price: "",
     imageUrl: "",
@@ -114,8 +114,8 @@ export default function AdminProductsPage() {
 
   const resetForm = () => {
     setFormData({
-      id: "",
-      name: "",
+      _id: "",
+      productName: "",
       description: "",
       price: "",
       imageUrl: "",
@@ -137,7 +137,7 @@ export default function AdminProductsPage() {
         quantity: Number.parseInt(formData.quantity),
       };
 
-      const url = isEditing ? `/api/products/${formData.id}` : "/api/products";
+      const url = isEditing ? `/api/products/${formData._id}` : "/api/products";
       const method = isEditing ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -152,8 +152,8 @@ export default function AdminProductsPage() {
         toast({
           title: isEditing ? "Product Updated" : "Product Added",
           description: isEditing
-            ? `${formData.name} has been updated successfully`
-            : `${formData.name} has been added to your inventory`,
+            ? `${formData.productName} has been updated successfully`
+            : `${formData.productName} has been added to your inventory`,
         });
 
         resetForm();
@@ -178,8 +178,8 @@ export default function AdminProductsPage() {
 
   const handleEditProduct = (product: Product) => {
     setFormData({
-      id: product.id,
-      name: product.name,
+      _id: product._id,
+      productName: product.productName,
       description: product.description,
       price: product.price.toString(),
       imageUrl: product.imageUrl,
@@ -194,7 +194,6 @@ export default function AdminProductsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // and handles deleting products with proper validation and error handling
   const handleDeleteProduct = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}?`)) {
       return;
@@ -242,7 +241,7 @@ export default function AdminProductsPage() {
   const filteredProducts = products
     .filter(
       (product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .filter(
@@ -290,11 +289,11 @@ export default function AdminProductsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="name">Product Name</Label>
+                    <Label htmlFor="productName">Product Name</Label>
                     <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
+                      id="productName"
+                      name="productName"
+                      value={formData.productName}
                       onChange={handleInputChange}
                       placeholder="Enter product name"
                       required
@@ -466,7 +465,7 @@ export default function AdminProductsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
             <Card
-              key={product.id}
+              key={product._id}
               className="overflow-hidden shadow-md border-0 hover:shadow-lg transition-shadow"
             >
               <div className="relative h-48 w-full">
@@ -474,7 +473,7 @@ export default function AdminProductsPage() {
                   src={
                     product.imageUrl || "/placeholder.svg?height=400&width=400"
                   }
-                  alt={product.name}
+                  alt={product.productName}
                   fill
                   className="object-cover"
                 />
@@ -487,7 +486,7 @@ export default function AdminProductsPage() {
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold text-lg line-clamp-1">
-                    {product.name}
+                    {product.productName}
                   </h3>
                   <span className="font-bold text-blue-600">
                     ₦{product.price.toLocaleString()}
@@ -520,7 +519,7 @@ export default function AdminProductsPage() {
                       variant="outline"
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() =>
-                        handleDeleteProduct(product.id, product.name)
+                        handleDeleteProduct(product._id, product.productName)
                       }
                     >
                       <Trash className="h-4 w-4" />

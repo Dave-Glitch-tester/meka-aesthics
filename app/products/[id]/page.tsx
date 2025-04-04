@@ -15,10 +15,10 @@ import type { Product } from "@/types/product";
 import Link from "next/link";
 
 interface Review {
-  id: string;
+  _id: string;
   productId: string;
   userId: string;
-  userName: string;
+  name: string;
   rating: number;
   title: string;
   comment: string;
@@ -127,7 +127,7 @@ export default function ProductDetailPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productId: product.id, quantity }),
+        body: JSON.stringify({ productId: product._id, quantity }),
       });
 
       if (!response.ok) throw new Error("Failed to add to cart");
@@ -191,7 +191,7 @@ export default function ProductDetailPage() {
           setIsInWishlist(false);
           toast({
             title: "Removed from Wishlist",
-            description: `${product.name} has been removed from your wishlist`,
+            description: `${product.productName} has been removed from your wishlist`,
           });
         }
       } else {
@@ -202,7 +202,7 @@ export default function ProductDetailPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            productId: product.id,
+            productId: product._id,
             userId: user.id,
           }),
         });
@@ -212,7 +212,7 @@ export default function ProductDetailPage() {
         setIsInWishlist(true);
         toast({
           title: "Added to Wishlist",
-          description: `${product.name} has been added to your wishlist`,
+          description: `${product.productName} has been added to your wishlist`,
         });
       }
     } catch (error) {
@@ -379,7 +379,7 @@ export default function ProductDetailPage() {
           <div className="relative h-96 rounded-lg overflow-hidden border border-blue-100">
             <Image
               src={productImages[activeImage] || "/placeholder.svg"}
-              alt={product.name}
+              alt={product.productName}
               fill
               className="object-cover"
             />
@@ -397,7 +397,7 @@ export default function ProductDetailPage() {
               >
                 <Image
                   src={image || "/placeholder.svg"}
-                  alt={`${product.name} - view ${index + 1}`}
+                  alt={`${product.productName} - view ${index + 1}`}
                   fill
                   className="object-cover"
                 />
@@ -408,7 +408,7 @@ export default function ProductDetailPage() {
 
         <div className="md:w-1/2">
           <h1 className="text-3xl font-bold text-blue-900 mb-2">
-            {product.name}
+            {product.productName}
           </h1>
 
           <div className="flex items-center gap-2 mb-4">
@@ -539,10 +539,11 @@ export default function ProductDetailPage() {
             <div className="prose prose-blue max-w-none">
               <p>{product.description}</p>
               <p>
-                Our {product.name} is crafted with attention to detail and made
-                from high-quality materials to ensure durability and longevity.
-                The elegant design adds a touch of sophistication to any room,
-                making it a perfect addition to your home decor collection.
+                Our {product.productName} is crafted with attention to detail
+                and made from high-quality materials to ensure durability and
+                longevity. The elegant design adds a touch of sophistication to
+                any room, making it a perfect addition to your home decor
+                collection.
               </p>
               <p>
                 The versatile nature of this piece allows it to complement
@@ -710,7 +711,7 @@ export default function ProductDetailPage() {
               <div className="space-y-6">
                 {reviews.map((review) => (
                   <div
-                    key={review.id}
+                    key={review._id}
                     className="border-b border-blue-100 pb-6"
                   >
                     <div className="flex items-center mb-2">
@@ -731,7 +732,7 @@ export default function ProductDetailPage() {
                       </span>
                     </div>
                     <p className="text-sm text-blue-700 mb-2">
-                      {review.userName} - {formatDate(review.createdAt)}
+                      {review.name} - {formatDate(review.createdAt)}
                     </p>
                     <p className="text-blue-600">{review.comment}</p>
                   </div>

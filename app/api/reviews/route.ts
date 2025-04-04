@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     // Get the authenticated user ID
     const userId = request.headers.get("x-user-id");
-    const user = await users.findById(userId);
+    // const user = await users.findById(userId);
     // Check if the product exists
     const product = await Product.findById(productId);
     if (!product) {

@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     await connectDb();
 
     // Replace this with actual user authentication logic
-    const userId = "authenticated-user-id"; // Replace with the authenticated user's ID
+    const userId = request.headers.get("x-user-id");
 
     // Fetch the cart items for the user
     const cartItems = await Cart.find({ userId }).populate("product");

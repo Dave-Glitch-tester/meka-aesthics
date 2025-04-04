@@ -114,10 +114,10 @@ export default function FeaturedProducts() {
       return;
     }
 
-    setProcessingWishlist(product.id);
+    setProcessingWishlist(product._id);
 
     try {
-      const isInWishlist = wishlistItems.includes(product.id);
+      const isInWishlist = wishlistItems.includes(product._id);
 
       if (isInWishlist) {
         // Find the wishlist item ID first
@@ -126,7 +126,7 @@ export default function FeaturedProducts() {
 
         const wishlistData = await wishlistResponse.json();
         const wishlistItem = wishlistData.find(
-          (item: any) => item.productId === product.id
+          (item: any) => item.productId === product._id
         );
 
         if (wishlistItem) {
@@ -140,10 +140,10 @@ export default function FeaturedProducts() {
           if (!deleteResponse.ok)
             throw new Error("Failed to remove from wishlist");
 
-          setWishlistItems(wishlistItems.filter((id) => id !== product.id));
+          setWishlistItems(wishlistItems.filter((id) => id !== product._id));
           toast({
             title: "Removed from Wishlist",
-            description: `${product.name} has been removed from your wishlist`,
+            description: `${product.productName} has been removed from your wishlist`,
           });
         }
       } else {
@@ -154,8 +154,8 @@ export default function FeaturedProducts() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            productId: product.id,
-            productName: product.name,
+            productId: product._id,
+            productName: product.productName,
             productPrice: product.price,
             productImageUrl: product.imageUrl,
             productCategory: product.category,
@@ -164,10 +164,10 @@ export default function FeaturedProducts() {
 
         if (!response.ok) throw new Error("Failed to add to wishlist");
 
-        setWishlistItems([...wishlistItems, product.id]);
+        setWishlistItems([...wishlistItems, product._id]);
         toast({
           title: "Added to Wishlist",
-          description: `${product.name} has been added to your wishlist`,
+          description: `${product.productName} has been added to your wishlist`,
         });
       }
     } catch (error) {
@@ -239,7 +239,7 @@ export default function FeaturedProducts() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product) => (
             <Card
-              key={product.id}
+              key={product._id}
               className="rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg"
             >
               <div className="relative h-64 overflow-hidden group">
@@ -247,7 +247,7 @@ export default function FeaturedProducts() {
                   src={
                     product.imageUrl || "/placeholder.svg?height=400&width=400"
                   }
-                  alt={product.name}
+                  alt={product.productName}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -259,17 +259,17 @@ export default function FeaturedProducts() {
                     e.preventDefault();
                     handleToggleWishlist(product);
                   }}
-                  disabled={processingWishlist === product.id}
+                  disabled={processingWishlist === product._id}
                   className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-pink-50 transition-colors z-10"
                   aria-label={
-                    wishlistItems.includes(product.id)
+                    wishlistItems.includes(product._id)
                       ? "Remove from wishlist"
                       : "Add to wishlist"
                   }
                 >
                   <Heart
                     className={`h-5 w-5 ${
-                      wishlistItems.includes(product.id)
+                      wishlistItems.includes(product._id)
                         ? "fill-pink-500 text-pink-500"
                         : "text-gray-400 hover:text-pink-500"
                     }`}
@@ -278,10 +278,10 @@ export default function FeaturedProducts() {
               </div>
               <CardContent className="p-4">
                 <Link
-                  href={`/products/${product.id}`}
+                  href={`/products/${product._id}`}
                   className="text-lg font-medium text-blue-900 hover:text-blue-700 transition-colors line-clamp-1"
                 >
-                  {product.name}
+                  {product.productName}
                 </Link>
                 <p className="text-blue-600 text-sm line-clamp-2 mt-1">
                   {product.description}
@@ -292,7 +292,7 @@ export default function FeaturedProducts() {
                   ₦{product.price.toLocaleString()}
                 </p>
                 <Button
-                  onClick={() => handleAddToCart(product.id)}
+                  onClick={() => handleAddToCart(product._id)}
                   className="bg-blue-600 hover:bg-blue-700"
                   size="sm"
                 >

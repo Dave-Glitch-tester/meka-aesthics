@@ -25,7 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
 interface CartItem {
-  id: string;
+  _id: string;
   productId: string;
   product: {
     id: string;
@@ -116,7 +116,7 @@ export default function CartPage() {
 
       setCartItems((prev) =>
         prev.map((item) =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
+          item._id === itemId ? { ...item, quantity: newQuantity } : item
         )
       );
 
@@ -146,7 +146,7 @@ export default function CartPage() {
 
       if (!response.ok) throw new Error("Failed to remove item");
 
-      setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+      setCartItems((prev) => prev.filter((item) => item._id !== itemId));
 
       toast({
         title: "Success",
@@ -209,7 +209,7 @@ export default function CartPage() {
             productName: item.product.name,
             productPrice: item.product.price,
             productImageUrl: item.product.imageUrl,
-            productCategory: "category", // We don't have category in cart item, so use a default
+            productCategory: "category",
           }),
         });
 
@@ -343,7 +343,7 @@ export default function CartPage() {
           <div className="lg:w-2/3">
             {cartItems.map((item) => (
               <Card
-                key={item.id}
+                key={item._id}
                 className="mb-4 border-0 shadow-md overflow-hidden"
               >
                 <CardContent className="p-4">
@@ -378,7 +378,7 @@ export default function CartPage() {
                         className="h-8 w-8 rounded-r-none"
                         onClick={() =>
                           updateQuantity(
-                            item.id,
+                            item._id,
                             Math.max(1, item.quantity - 1)
                           )
                         }
@@ -395,7 +395,7 @@ export default function CartPage() {
                         className="h-8 w-8 rounded-l-none"
                         onClick={() =>
                           updateQuantity(
-                            item.id,
+                            item._id,
                             Math.min(item.product.quantity, item.quantity + 1)
                           )
                         }
@@ -430,7 +430,7 @@ export default function CartPage() {
                         variant="ghost"
                         size="icon"
                         className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item._id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

@@ -13,17 +13,14 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
     // Find user by email
-    const user = await UserSchema.findOne({ email });
+    const user = await UserSchema.findOne({ email }).select("-password");
     if (!user) {
       return NextResponse.json(
         { message: "Invalid email or password" },
         { status: 401 }
       );
     }
-
-    // Check if password matches
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -34,13 +31,8 @@ export async function POST(request: Request) {
 
     // Generate token
     const token = user.createToken();
-
     // Create response object
-    const response = NextResponse.json(
-      { message: "Login successful", token },
-      { status: 200 }
-    );
-
+    const response = NextResponse.json(user);
     // Set cookie
     response.cookies.set("token", token, {
       httpOnly: true,

@@ -1,74 +1,86 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Star, StarHalf } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Star, StarHalf } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Review {
-  id: string
-  productId: string
-  productName: string
-  userId: string
-  userName: string
-  userRole: string
-  rating: number
-  title: string
-  comment: string
-  content: string
-  createdAt: string
-  avatar: string
+  _id: string;
+  productId: string;
+  productName: string;
+  userId: string;
+  name: string;
+  role: string;
+  rating: number;
+  title: string;
+  comment: string;
+  content: string;
+  createdAt: string;
+  avatar: string;
 }
 
 export default function AllReviews() {
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState("all")
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("/api/reviews")
+        const response = await fetch("/api/reviews");
         if (response.ok) {
-          const data = await response.json()
-          setReviews(data)
+          const data = await response.json();
+          setReviews(data);
         }
       } catch (error) {
-        console.error("Error fetching reviews:", error)
+        console.error("Error fetching reviews:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchReviews()
-  }, [])
+    fetchReviews();
+  }, []);
 
   const filteredReviews =
-    filter === "all" ? reviews : reviews.filter((review) => review.rating === Number.parseInt(filter))
+    filter === "all"
+      ? reviews
+      : reviews.filter((review) => review.rating === Number.parseInt(filter));
 
   const renderStars = (rating: number) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 !== 0
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)
+      stars.push(
+        <Star
+          key={`full-${i}`}
+          className="h-4 w-4 fill-yellow-400 text-yellow-400"
+        />
+      );
     }
 
     if (hasHalfStar) {
-      stars.push(<StarHalf key="half" className="h-4 w-4 fill-yellow-400 text-yellow-400" />)
+      stars.push(
+        <StarHalf
+          key="half"
+          className="h-4 w-4 fill-yellow-400 text-yellow-400"
+        />
+      );
     }
 
-    const emptyStars = 5 - stars.length
+    const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />)
+      stars.push(<Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />);
     }
 
-    return stars
-  }
+    return stars;
+  };
 
   if (loading) {
     return (
@@ -91,7 +103,7 @@ export default function AllReviews() {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   return (
@@ -118,35 +130,44 @@ export default function AllReviews() {
 
       {filteredReviews.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No reviews found with the selected filter.</p>
+          <p className="text-gray-500">
+            No reviews found with the selected filter.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredReviews.map((review) => (
-            <Card key={review.id} className="overflow-hidden">
+            <Card key={review._id} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="relative h-12 w-12 rounded-full overflow-hidden">
                     <Image
                       src={review.avatar || "/placeholder.svg"}
-                      alt={review.userName}
+                      alt={review.name}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="ml-4">
-                    <p className="font-medium">{review.userName}</p>
-                    <p className="text-sm text-gray-500">{review.userRole}</p>
+                    <p className="font-medium">{review.name}</p>
+                    <p className="text-sm text-gray-500">{review.role}</p>
                   </div>
                 </div>
                 <div className="flex items-center mb-2">
                   <div className="flex mr-2">{renderStars(review.rating)}</div>
-                  <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  <span className="text-sm text-gray-500">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
                 <h3 className="font-semibold mb-2">{review.title}</h3>
-                <p className="text-gray-700 mb-3 line-clamp-3">{review.comment}</p>
+                <p className="text-gray-700 mb-3 line-clamp-3">
+                  {review.comment}
+                </p>
                 <div className="flex justify-between items-center mt-4">
-                  <Link href={`/products/${review.productId}`} className="text-sm text-blue-600 hover:underline">
+                  <Link
+                    href={`/products/${review.productId}`}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
                     {review.productName}
                   </Link>
                 </div>
@@ -156,6 +177,5 @@ export default function AllReviews() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

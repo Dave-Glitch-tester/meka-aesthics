@@ -9,11 +9,11 @@ import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import LoadingSpinner from "../loading-spinner";
 
 interface Review {
-  id: string;
+  _id: string;
   productId: string;
   productName: string;
-  userName: string;
-  userRole: string;
+  name: string;
+  role: string;
   content: string;
   rating: number;
   avatar: string;
@@ -189,7 +189,10 @@ export default function TestimonialSection() {
               style={{ transform: `translateX(-${activeIndex * 100}%)` }}
             >
               {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
+                <div
+                  key={testimonial._id}
+                  className="w-full flex-shrink-0 px-4"
+                >
                   <Card className="bg-white border-blue-100 shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-center mb-4">
@@ -205,23 +208,23 @@ export default function TestimonialSection() {
                         ))}
                       </div>
                       <p className="text-blue-700 mb-6 italic">
-                        "{testimonial.content}"
+                        s "{testimonial.content}"
                       </p>
                       <div className="flex items-center">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden mr-4">
                           <Image
                             src={testimonial.avatar || "/placeholder.svg"}
-                            alt={testimonial.userName}
+                            alt={testimonial.name}
                             fill
                             className="object-cover"
                           />
                         </div>
                         <div>
                           <h4 className="font-medium text-blue-900">
-                            {testimonial.userName}
+                            {testimonial.name}
                           </h4>
                           <p className="text-sm text-blue-600">
-                            {testimonial.userRole}
+                            {testimonial.role}
                           </p>
                           <Link
                             href={`/products/${testimonial.productId}`}

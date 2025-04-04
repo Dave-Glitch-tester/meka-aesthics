@@ -19,11 +19,11 @@ import { Star, StarHalf, Search, Filter, Trash } from "lucide-react";
 import PageLoading from "@/components/page-loading";
 
 interface Review {
-  id: string;
+  _id: string;
   productId: string;
   productName: string;
   userId: string;
-  userName: string;
+  name: string;
   role: string;
   rating: number;
   title: string;
@@ -142,7 +142,7 @@ export default function AdminReviewsPage() {
   const filteredReviews = reviews
     .filter(
       (review) =>
-        review.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.productName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -206,20 +206,20 @@ export default function AdminReviewsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredReviews.map((review) => (
-            <Card key={review.id} className="overflow-hidden">
+            <Card key={review._id} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <div className="relative h-10 w-10 rounded-full overflow-hidden">
                       <Image
                         src="/placeholder.svg"
-                        alt={review.userName}
+                        alt={review.name}
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div className="ml-3">
-                      <p className="font-medium">{review.userName}</p>
+                      <p className="font-medium">{review.name}</p>
                       <p className="text-xs text-gray-500">{review.role}</p>
                     </div>
                   </div>
@@ -227,9 +227,7 @@ export default function AdminReviewsPage() {
                     variant="ghost"
                     size="icon"
                     className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    onClick={() =>
-                      handleDeleteReview(review.id, review.userName)
-                    }
+                    onClick={() => handleDeleteReview(review._id, review.name)}
                   >
                     <Trash className="h-4 w-4" />
                   </Button>
