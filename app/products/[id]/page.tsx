@@ -515,7 +515,7 @@ export default function ProductDetailPage() {
                 <span className="font-medium">Free shipping</span>
               </div>
               <p className="text-sm text-blue-600">
-                Free standard shipping on orders over ₦20,000
+                Free standard shipping on orders under ₦2000
               </p>
             </CardContent>
           </Card>

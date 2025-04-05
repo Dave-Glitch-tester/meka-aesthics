@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       );
     }
     // Find user by email
-    const user = await UserSchema.findOne({ email }).select("-password");
+    const user = await UserSchema.findOne({ email });
     if (!user) {
       return NextResponse.json(
         { message: "Invalid email or password" },

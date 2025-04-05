@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
-import Product from "@/models/product"; // Assuming you have a Product model
+import Product from "@/models/product";
 
-// GET request to fetch a product by ID
+// GET product by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: Promise<{ params: { id: string } }>
 ) {
   try {
-    await connectDb(); // Ensure database connection
-    const id = params.id;
+    const {
+      params: { id },
+    } = await context;
 
-    // Fetch the product from the database
+    await connectDb();
     const product = await Product.findById(id);
 
     if (!product) {
@@ -31,20 +32,22 @@ export async function GET(
   }
 }
 
-// PATCH request to update a product by ID
+// PATCH product by ID
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: Promise<{ params: { id: string } }>
 ) {
   try {
-    await connectDb(); // Ensure database connection
-    const id = params.id;
+    const {
+      params: { id },
+    } = await context;
+
+    await connectDb();
     const data = await request.json();
 
-    // Update the product in the database
     const updatedProduct = await Product.findByIdAndUpdate(id, data, {
-      new: true, // Return the updated document
-      runValidators: true, // Ensure validation rules are applied
+      new: true,
+      runValidators: true,
     });
 
     if (!updatedProduct) {
@@ -64,16 +67,17 @@ export async function PATCH(
   }
 }
 
-// DELETE request to delete a product by ID
+// DELETE product by ID
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: Promise<{ params: { id: string } }>
 ) {
   try {
-    await connectDb(); // Ensure database connection
-    const id = params.id;
+    const {
+      params: { id },
+    } = await context;
 
-    // Delete the product from the database
+    await connectDb();
     const deletedProduct = await Product.findByIdAndDelete(id);
 
     if (!deletedProduct) {

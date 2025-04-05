@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import review from "@/models/reviews";
-import Product from "@/models/product"; // Import the Product model
+import Product from "@/models/product";
 import connectDb from "@/db/connect";
-import users from "@/models/users";
-
-const SECRET = process.env.JWT_SECRET || "default_secret_key";
-
+// import users from "@/models/users";
 export async function GET(request: Request) {
   try {
     await connectDb();
@@ -18,7 +15,6 @@ export async function GET(request: Request) {
     if (productId) {
       query.productId = productId;
     }
-
     let reviews = await review.find(query).sort({ createdAt: -1 });
 
     // Filter featured reviews (high ratings)
@@ -52,7 +48,6 @@ export async function POST(request: Request) {
 
     // Get the authenticated user ID
     const userId = request.headers.get("x-user-id");
-    // const user = await users.findById(userId);
     // Check if the product exists
     const product = await Product.findById(productId);
     if (!product) {

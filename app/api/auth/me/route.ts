@@ -27,8 +27,8 @@ export async function GET() {
 
     // Find the user
     const user = await User.findById(decoded.userId)
-      .select("-password") // Exclude password from the response
-      .lean(); // Convert to plain JavaScript object
+      .select("-password") // Exclude password from the
+      .lean();
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

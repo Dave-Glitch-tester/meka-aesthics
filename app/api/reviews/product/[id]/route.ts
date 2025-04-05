@@ -4,19 +4,19 @@ import Review from "@/models/reviews";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: Promise<{ params: { id: string } }>
 ) {
   try {
-    await connectDb(); // Ensure database connection
-    const productId = params.id;
+    const {
+      params: { id: productId },
+    } = await context;
 
-    // Fetch reviews for the specific product from the database
+    await connectDb();
+
     const productReviews = await Review.find({ productId })
-      .sort({
-        createdAt: -1,
-      })
-      .populate("product")
-      .populate("Users"); // Sort by newest first
+      .sort({ createdAt: -1 })
+      .populate("products")
+      .populate("Users");
 
     return NextResponse.json(productReviews);
   } catch (error) {

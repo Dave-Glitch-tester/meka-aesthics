@@ -76,8 +76,6 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, [user, isAdmin, router, toast]);
 
-  // You would implement a proper API endpoint that connects to your database
-  // and returns the product data with proper pagination, filtering, etc.
   const fetchProducts = async () => {
     try {
       const response = await fetch("/api/products");
@@ -138,7 +136,7 @@ export default function AdminProductsPage() {
       };
 
       const url = isEditing ? `/api/products/${formData._id}` : "/api/products";
-      const method = isEditing ? "PUT" : "POST";
+      const method = isEditing ? "PATCH" : "POST";
 
       const response = await fetch(url, {
         method,
