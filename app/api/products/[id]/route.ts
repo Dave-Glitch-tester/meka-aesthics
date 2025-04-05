@@ -5,12 +5,12 @@ import Product from "@/models/product";
 // GET product by ID
 export async function GET(
   request: Request,
-  context: Promise<{ params: { id: string } }>
+  params: Promise<{ params: { id: string } }>
 ) {
   try {
     const {
       params: { id },
-    } = await context;
+    } = await params;
 
     await connectDb();
     const product = await Product.findById(id);

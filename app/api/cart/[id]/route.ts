@@ -5,11 +5,13 @@ import Cart from "@/models/cart"; // Assuming you have a Cart model
 // PATCH request to update a cart item
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: Promise<{ params: { id: string } }>
 ) {
   try {
     await connectDb(); // Ensure database connection
-    const id = params.id;
+    const {
+      params: { id },
+    } = await context;
     const data = await request.json();
 
     // Find the cart item by ID
