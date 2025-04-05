@@ -54,12 +54,13 @@ export async function PATCH(
 // DELETE request to remove a cart item
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: Promise<{ params: { id: string } }>
 ) {
   try {
     await connectDb(); // Ensure database connection
-    const id = params.id;
-
+    const {
+      params: { id },
+    } = await context;
     // Find and delete the cart item by ID
     const cartItem = await Cart.findByIdAndDelete(id);
     if (!cartItem) {
