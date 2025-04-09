@@ -12,7 +12,7 @@ export default function Home() {
       <section className="relative h-[600px] w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-700/70 z-10" />
         <Image
-          src="/placeholder.svg?height=1200&width=2000"
+          src="/herobg.jpg"
           alt="Beautiful living room"
           fill
           className="object-cover"
@@ -68,7 +68,7 @@ export default function Home() {
             </div>
             <div className="md:w-1/2 relative h-[400px] rounded-lg overflow-hidden shadow-xl">
               <Image
-                src="/placeholder.svg?height=800&width=800"
+                src="/showroom.jpg"
                 alt="Our showroom"
                 fill
                 className="object-cover"

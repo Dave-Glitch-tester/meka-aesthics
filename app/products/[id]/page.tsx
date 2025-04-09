@@ -275,21 +275,33 @@ export default function ProductDetailPage() {
     setIsSubmittingReview(true);
 
     try {
+      console.log("Submitting review with data:", {
+        productId: id,
+        userId: user._id,
+        rating: reviewFormData.rating,
+        title: reviewFormData.title,
+        comment: reviewFormData.comment,
+      });
+
       const response = await fetch("/api/reviews", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          productId: id, // Send the product ID
+          productId: id,
           userId: user._id,
-          rating: reviewFormData.rating, // Send the rating
-          title: reviewFormData.title, // Send the title
-          comment: reviewFormData.comment, // Send the comment
+          rating: reviewFormData.rating,
+          title: reviewFormData.title,
+          comment: reviewFormData.comment,
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to submit review");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(errorData.message || "Failed to submit review");
+      }
 
       const newReview = await response.json();
 

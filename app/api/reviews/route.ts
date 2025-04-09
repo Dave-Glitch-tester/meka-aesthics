@@ -36,27 +36,34 @@ export async function POST(request: Request) {
   try {
     await connectDb();
     const data = await request.json();
+    console.log("Incoming review data:", data);
+
     const { productId, rating, title, comment, content, userId } = data;
 
-    // Validate required fields
     if (!productId || !rating || !title || !comment || !userId) {
+      console.error("Missing required fields:", {
+        productId,
+        rating,
+        title,
+        comment,
+        userId,
+      });
+
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // const userId = request.headers.get("x-user-id");
-    // Check if the product exists
     const product = await Product.findById(productId);
     if (!product) {
+      console.error("Product not found:", productId);
       return NextResponse.json(
         { message: "Product not found" },
         { status: 404 }
       );
     }
 
-    // Create new review
     const newReview = await review.create({
       productId,
       user: userId,
@@ -66,6 +73,8 @@ export async function POST(request: Request) {
       content,
       avatar: data.avatar || "/placeholder.svg?height=100&width=100",
     });
+
+    console.log("Review created successfully:", newReview);
 
     return NextResponse.json(newReview, { status: 201 });
   } catch (error) {
