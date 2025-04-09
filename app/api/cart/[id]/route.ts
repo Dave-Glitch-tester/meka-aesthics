@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
-import Cart from "@/models/cart"; // Assuming you have a Cart model
+import Cart from "@/models/cart";
 
 // PATCH request to update a cart item
 export async function PATCH(
@@ -8,7 +8,7 @@ export async function PATCH(
   context: Promise<{ params: { id: string } }>
 ) {
   try {
-    await connectDb(); // Ensure database connection
+    await connectDb();
     const {
       params: { id },
     } = await context;
