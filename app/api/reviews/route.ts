@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import review from "@/models/reviews";
 import Product from "@/models/product";
 import connectDb from "@/db/connect";
 // import users from "@/models/users";
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     await connectDb();
     const { searchParams } = new URL(request.url);
@@ -36,18 +36,17 @@ export async function POST(request: Request) {
   try {
     await connectDb();
     const data = await request.json();
-    const { productId, rating, title, comment, content } = data;
+    const { productId, rating, title, comment, content, userId } = data;
 
     // Validate required fields
-    if (!productId || !rating || !title || !comment) {
+    if (!productId || !rating || !title || !comment || !userId) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Get the authenticated user ID
-    const userId = request.headers.get("x-user-id");
+    // const userId = request.headers.get("x-user-id");
     // Check if the product exists
     const product = await Product.findById(productId);
     if (!product) {
@@ -60,7 +59,7 @@ export async function POST(request: Request) {
     // Create new review
     const newReview = await review.create({
       productId,
-      userId,
+      user: userId,
       rating,
       title,
       comment,

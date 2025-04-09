@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
 import Product from "@/models/product";
 
-// GET product by ID
 export async function GET(
   request: Request,
   params: Promise<{ params: { id: string } }>

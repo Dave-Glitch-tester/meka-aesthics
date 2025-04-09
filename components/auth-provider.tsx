@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
 interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role?: string;
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const mockGoogleUser = {
-        id: "google-123456",
+        _id: "google-123456",
         name: "Google User",
         email: "googleuser@example.com",
         role: "user",
@@ -137,7 +137,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
       });
       setUser(null);
-
       toast({
         title: "Logged out",
         description: "You've been successfully logged out",

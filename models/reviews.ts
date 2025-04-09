@@ -27,7 +27,7 @@ const reviewSchema = new Schema({
   },
   userRole: {
     type: String,
-    required: true,
+    default: "user",
   },
   comment: {
     type: String,

@@ -203,7 +203,7 @@ export default function ProductDetailPage() {
           },
           body: JSON.stringify({
             productId: product._id,
-            userId: user.id,
+            userId: user._id,
           }),
         });
 
@@ -282,6 +282,7 @@ export default function ProductDetailPage() {
         },
         body: JSON.stringify({
           productId: id, // Send the product ID
+          userId: user._id,
           rating: reviewFormData.rating, // Send the rating
           title: reviewFormData.title, // Send the title
           comment: reviewFormData.comment, // Send the comment

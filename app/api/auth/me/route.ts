@@ -22,7 +22,6 @@ export async function GET() {
     // Verify the JWT token
     const decoded = JWT.verify(token.value, SECRET) as { userId: string };
 
-    // Connect to database
     await connectDb();
 
     // Find the user
