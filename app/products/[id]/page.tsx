@@ -275,14 +275,6 @@ export default function ProductDetailPage() {
     setIsSubmittingReview(true);
 
     try {
-      console.log("Submitting review with data:", {
-        productId: id,
-        userId: user._id,
-        rating: reviewFormData.rating,
-        title: reviewFormData.title,
-        comment: reviewFormData.comment,
-      });
-
       const response = await fetch("/api/reviews", {
         method: "POST",
         headers: {

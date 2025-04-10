@@ -303,9 +303,7 @@ export default function ProductsPage() {
             >
               <div className="relative h-64 overflow-hidden group">
                 <Image
-                  src={
-                    product.imageUrl || "/placeholder.svg?height=400&width=400"
-                  }
+                  src={product.imageUrl || "/herobg.png"}
                   alt={product.productName}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"

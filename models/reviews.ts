@@ -6,7 +6,7 @@ const reviewSchema = new Schema({
     ref: "Users",
     required: true,
   },
-  product: {
+  productId: {
     type: Schema.Types.ObjectId,
     ref: "Product",
     required: true,
@@ -18,10 +18,6 @@ const reviewSchema = new Schema({
     max: 5,
   },
   title: {
-    type: String,
-    required: true,
-  },
-  content: {
     type: String,
     required: true,
   },

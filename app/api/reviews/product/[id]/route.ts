@@ -4,12 +4,10 @@ import Review from "@/models/reviews";
 
 export async function GET(
   request: Request,
-  context: Promise<{ params: { id: string } }>
+  context: { params: { id: string } }
 ) {
   try {
-    const {
-      params: { id: productId },
-    } = await context;
+    const { id: productId } = context.params;
 
     await connectDb();
 

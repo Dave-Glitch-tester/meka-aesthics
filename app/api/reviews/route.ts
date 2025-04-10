@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     console.log("Incoming review data:", data);
 
-    const { productId, rating, title, comment, content, userId } = data;
+    const { productId, rating, title, comment, userId } = data;
 
     if (!productId || !rating || !title || !comment || !userId) {
       console.error("Missing required fields:", {
@@ -70,7 +70,6 @@ export async function POST(request: Request) {
       rating,
       title,
       comment,
-      content,
       avatar: data.avatar || "/placeholder.svg?height=100&width=100",
     });
 
