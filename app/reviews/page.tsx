@@ -16,8 +16,8 @@ interface Review {
   productId: string
   productName: string
   userId: string
-  userName: string
-  userRole: string
+  name: string
+  Role: string
   rating: number
   title: string
   comment: string
@@ -79,7 +79,7 @@ export default function ReviewsPage() {
   const filteredReviews = reviews
     .filter(
       (review) =>
-        review.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
         review.productName.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -141,14 +141,14 @@ export default function ReviewsPage() {
                   <div className="relative h-12 w-12 rounded-full overflow-hidden">
                     <Image
                       src={review.avatar || "/placeholder.svg?height=100&width=100"}
-                      alt={review.userName}
+                      alt={review.name}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="ml-3">
-                    <p className="font-medium">{review.userName}</p>
-                    <p className="text-xs text-gray-500">{review.userRole}</p>
+                    <p className="font-medium">{review.name}</p>
+                    <p className="text-xs text-gray-500">{review.Role}</p>
                   </div>
                 </div>
 
