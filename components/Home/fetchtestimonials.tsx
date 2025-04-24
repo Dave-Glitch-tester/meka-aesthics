@@ -6,7 +6,8 @@ export default async function fetchTestimonials() {
   try {
     // Use the environment variable for the API base URL
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/reviews?featured=true`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/reviews?featured=true`,
+      { next: { revalidate: 60 } }
     );
 
     if (!response.ok) throw new Error("Failed to fetch testimonials");
@@ -46,7 +47,7 @@ export default async function fetchTestimonials() {
             What Our Customers Say
           </h2>
           <p className="text-center text-red-500 mb-8">
-            Failed to load testimonials. Please try again later.
+            Failed to load testimonials. Please try again later` ${error}`.
           </p>
         </div>
       </section>
