@@ -6,15 +6,17 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ShoppingCart, Heart } from "lucide-react";
+import { handleAddToCart } from "@/utils/addfeatures";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
-import LoadingSpinner from "../loading-spinner";
 
-export default function FeaturedProducts() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function FeaturedProducts({
+  products,
+}: {
+  products: Product[];
+}) {
   const [wishlistItems, setWishlistItems] = useState<string[]>([]); // Array of product IDs in wishlist
   const [processingWishlist, setProcessingWishlist] = useState<string | null>(
     null
@@ -22,28 +24,6 @@ export default function FeaturedProducts() {
   const { toast } = useToast();
   const { user } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("/api/products?featured=true");
-        if (!response.ok) throw new Error("Failed to fetch products");
-        const data = await response.json();
-        setProducts(data.slice(0, 4)); // Only show 4 featured products
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load featured products",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [toast]);
 
   // Fetch wishlist items when user is logged in
   useEffect(() => {
@@ -65,43 +45,6 @@ export default function FeaturedProducts() {
 
     fetchWishlist();
   }, [user]);
-
-  const handleAddToCart = async (productId: string) => {
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please login to add items to your cart",
-        variant: "default",
-      });
-      router.push(`/login?redirect=/products/${productId}`);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ productId, quantity: 1 }),
-      });
-
-      if (!response.ok) throw new Error("Failed to add to cart");
-
-      toast({
-        title: "Success",
-        description: "Item added to cart",
-        variant: "default",
-      });
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleToggleWishlist = async (product: Product) => {
     if (!user) {
@@ -182,54 +125,6 @@ export default function FeaturedProducts() {
     }
   };
 
-  if (loading) {
-    return (
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
-            Featured Products
-          </h2>
-          <div className="flex justify-center mb-8">
-            <LoadingSpinner size={40} />
-          </div>
-          <p className="text-center text-blue-700 mb-8">
-            Loading our featured collections...
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="rounded-lg overflow-hidden">
-                <div className="h-64 bg-blue-100 animate-pulse" />
-                <CardContent className="p-4">
-                  <div className="h-6 bg-blue-100 animate-pulse rounded mb-2" />
-                  <div className="h-4 bg-blue-100 animate-pulse rounded w-1/2" />
-                </CardContent>
-                <CardFooter className="p-4 pt-0 flex justify-between">
-                  <div className="h-6 bg-blue-100 animate-pulse rounded w-1/4" />
-                  <div className="h-10 bg-blue-100 animate-pulse rounded w-1/3" />
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (products.length === 0) {
-    return (
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
-            Featured Products
-          </h2>
-          <p className="text-center text-blue-700 mb-8">
-            No featured products available at the moment.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
@@ -292,7 +187,7 @@ export default function FeaturedProducts() {
                   ₦{product.price.toLocaleString()}
                 </p>
                 <Button
-                  onClick={() => handleAddToCart(product._id)}
+                  onClick={() => handleAddToCart(product._id, user)}
                   className="bg-blue-600 hover:bg-blue-700"
                   size="sm"
                 >

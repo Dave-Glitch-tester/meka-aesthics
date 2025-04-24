@@ -1,56 +1,49 @@
-import mongoose from "mongoose";
-import Review from "@/models/reviews";
-import product from "@/models/product";
+"use client";
+import axios from "@/utils/fetch";
+import { toast } from "@/hooks/use-toast";
+// import { useRouter } from "next/navigation";
 
-export async function addFeaturedProducts() {
-  try {
-    // Define four featured products
-    const featuredProducts = [
-      {
-        name: "Product 1",
-        description: "Description for Product 1",
-        price: 100,
-        category: "Category 1",
-        isFeatured: true,
-      },
-      {
-        name: "Product 2",
-        description: "Description for Product 2",
-        price: 200,
-        category: "Category 2",
-        isFeatured: true,
-      },
-      {
-        name: "Product 3",
-        description: "Description for Product 3",
-        price: 300,
-        category: "Category 3",
-        isFeatured: true,
-      },
-      {
-        name: "Product 4",
-        description: "Description for Product 4",
-        price: 400,
-        category: "Category 4",
-        isFeatured: true,
-      },
-    ];
-
-    // Insert products into the database
-    const createdProducts = await product.insertMany(featuredProducts);
-
-    // Add reviews for each product
-    const reviews = createdProducts.map((product) => ({
-      productId: product._id,
-      userId: new mongoose.Types.ObjectId(), // Replace with actual user IDs
-      rating: 5,
-      comment: `Great product: ${product.name}`,
-    }));
-
-    await Review.insertMany(reviews);
-
-    console.log("Featured products and reviews added successfully!");
-  } catch (error) {
-    console.error("Error adding featured products and reviews:", error);
+// const router = useRouter();
+export const handleAddToCart = async (productId: string, user: any) => {
+  if (!user) {
+    toast({
+      title: "Login Required",
+      description: "Please login to add items to your cart",
+      variant: "default",
+    });
+    // router.push(`/login?redirect=/products/${productId}`);
+    return;
   }
-}
+
+  try {
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, quantity: 1 }),
+    });
+
+    if (!response.ok) throw new Error("Failed to add to cart");
+
+    toast({
+      title: "Success",
+      description: "Item added to cart",
+      variant: "default",
+    });
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    toast({
+      title: "Error",
+      description: "Failed to add item to cart",
+      variant: "destructive",
+    });
+  }
+};
+
+// export const handleToggleWishlist = async (productId: string) => {
+//   axios(`/api/wishlist/${productId}`);
+// };
+
+// export const fetchTestimonials = () => {};
+
+// export const fetchCart = () => {};
+// export const fetchProduct = () => {};

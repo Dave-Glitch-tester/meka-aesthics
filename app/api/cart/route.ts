@@ -1,33 +1,39 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
 import Cart from "@/models/cart";
-import Product from "@/models/product"; // Assuming you have a Product model
+import Product from "@/models/product";
+import JWT from "jsonwebtoken";
 
-// GET request to fetch the cart for the authenticated user
-export async function GET(request: Request) {
-  try {
-    await connectDb();
+const SECRET = process.env.JWT_SECRET || "default_secret_key";
 
-    // Replace this with actual user authentication logic
-    const userId = request.headers.get("x-user-id");
-
-    // Fetch the cart items for the user
-    const cartItems = await Cart.find({ userId }).populate("product");
-
-    return NextResponse.json(cartItems);
-  } catch (error) {
-    console.error("Error fetching cart items:", error);
-    return NextResponse.json(
-      { message: "Failed to fetch cart items" },
-      { status: 500 }
-    );
-  }
-}
-
-// POST request to add an item to the cart
 export async function POST(request: Request) {
   try {
     await connectDb(); // Ensure database connection
+
+    // Get the token from cookies
+    const cookieHeader = request.headers.get("cookie");
+    console.log(cookieHeader)
+    const token = cookieHeader?.split("; ").find((c) => c.startsWith("token="))?.split("=")[1];
+
+    if (!token) {
+      return NextResponse.json(
+        { message: "Authentication token is missing" },
+        { status: 401 }
+      );
+    }
+
+    // Decode the token to get the userId
+    const decoded = JWT.verify(token, SECRET) as { userId: string };
+    const userId = decoded.userId;
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Invalid authentication token" },
+        { status: 401 }
+      );
+    }
+
+    // Parse the request body
     const data = await request.json();
 
     if (!data.productId || !data.quantity) {
@@ -36,9 +42,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    // Replace this with actual user authentication logic
-    const userId = request.headers.get("x-user-id");
 
     // Check if the product exists
     const product = await Product.findById(data.productId);
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
     // Check if the product is already in the cart
     const existingCartItem = await Cart.findOne({
       userId,
-      "product.id": data.productId,
+      product: product._id,
     });
 
     if (existingCartItem) {
@@ -71,13 +74,8 @@ export async function POST(request: Request) {
     // Add a new item to the cart
     const newCartItem = await Cart.create({
       userId,
-      product: {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: product.quantity,
-      },
-      quantity: Math.min(data.quantity, product.quantity),
+      product: product._id, // Use the product's ObjectId
+      quantity: Math.min(data.quantity, product.quantity), // Ensure quantity does not exceed stock
     });
 
     return NextResponse.json(newCartItem, { status: 201 });

@@ -1,25 +1,45 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
-import wishlist from "@/models/wishlist";
+import Wishlist from "@/models/wishlist";
 import Product from "@/models/product";
+import JWT from "jsonwebtoken";
+
+const SECRET = process.env.JWT_SECRET || "default_secret_key";
 
 export async function GET(request: Request) {
   try {
     await connectDb();
 
-    // Get the authenticated user's ID from the request headers
-    const userId = request.headers.get("x-user-id");
+    // Get the token from cookies
+    const cookieHeader = request.headers.get("cookie");
+    const token = cookieHeader
+      ?.split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.split("=")[1];
+
+    if (!token) {
+      return NextResponse.json(
+        { message: "Authentication token is missing" },
+        { status: 401 }
+      );
+    }
+
+    // Decode the token to get the userId
+    const decoded = JWT.verify(token, SECRET) as { userId: string };
+    const userId = decoded.userId;
+
     if (!userId) {
       return NextResponse.json(
-        { message: "User ID is required" },
+        { message: "Invalid authentication token" },
         { status: 401 }
       );
     }
 
     // Fetch wishlist items for the authenticated user
-    const wishlistItems = await wishlist
-      .find({ userId })
-      .populate("product", "name price category");
+    const wishlistItems = await Wishlist.find({ userId }).populate(
+      "productId",
+      "name price category"
+    );
 
     return NextResponse.json(wishlistItems);
   } catch (error) {
@@ -35,15 +55,33 @@ export async function POST(request: Request) {
   try {
     await connectDb();
 
-    const data = await request.json();
-    const userId = request.headers.get("x-user-id");
+    // Get the token from cookies
+    const cookieHeader = request.headers.get("cookie");
+    const token = cookieHeader
+      ?.split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.split("=")[1];
 
-    if (!userId) {
+    if (!token) {
       return NextResponse.json(
-        { message: "User ID is required" },
+        { message: "Authentication token is missing" },
         { status: 401 }
       );
     }
+
+    // Decode the token to get the userId
+    const decoded = JWT.verify(token, SECRET) as { userId: string };
+    const userId = decoded.userId;
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Invalid authentication token" },
+        { status: 401 }
+      );
+    }
+
+    // Parse the request body
+    const data = await request.json();
 
     if (!data.productId) {
       return NextResponse.json(
@@ -62,7 +100,7 @@ export async function POST(request: Request) {
     }
 
     // Check if the product is already in the wishlist
-    const existingItem = await wishlist.findOne({
+    const existingItem = await Wishlist.findOne({
       userId,
       productId: data.productId,
     });
@@ -72,7 +110,7 @@ export async function POST(request: Request) {
     }
 
     // Add new item to wishlist
-    const newItem = await wishlist.create({
+    const newItem = await Wishlist.create({
       userId,
       productId: data.productId,
       addedAt: new Date(),

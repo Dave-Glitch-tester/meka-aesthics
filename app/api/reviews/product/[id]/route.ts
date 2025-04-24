@@ -29,40 +29,40 @@ export async function GET(
       .populate({
         path: "user",
         select: "name", // Only include public fields
-        model: "User"
+        model: "User",
       })
       .populate({
         path: "product",
-        select: "productName price", // Only include essential product fields
-        model: "Product"
+        select: "productName price",
+        model: "Product",
       })
-      .lean(); // Convert to plain JS objects
+      .lean();
 
     // Format response data
-    const sanitizedReviews = productReviews.map(review => ({
+    const sanitizedReviews = productReviews.map((review) => ({
       ...review,
       user: {
         name: review.user.name,
       },
       product: {
         productName: review.product.name,
-        price: review.product.price
-      }
+        price: review.product.price,
+      },
     }));
 
     return NextResponse.json(sanitizedReviews, {
       headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30"
-      }
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
+      },
     });
-
   } catch (error) {
     console.error("Error fetching reviews:", error);
     const status = error instanceof Error ? 500 : 500;
     return NextResponse.json(
-      { 
-        message: error instanceof Error ? error.message : "Failed to fetch reviews",
-        details: process.env.NODE_ENV === "development" ? error : undefined
+      {
+        message:
+          error instanceof Error ? error.message : "Failed to fetch reviews",
+        details: process.env.NODE_ENV === "development" ? error : undefined,
       },
       { status }
     );

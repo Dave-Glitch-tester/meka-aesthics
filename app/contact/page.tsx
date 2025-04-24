@@ -1,49 +1,62 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
-import { Facebook, Instagram, Phone, Mail, MapPin, Send, MessageSquare } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Facebook,
+  Instagram,
+  Phone,
+  Mail,
+  MapPin,
+  Send,
+  MessageSquare,
+} from "lucide-react";
 
 export default function ContactPage() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [message, setMessage] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Simulate form submission
     setTimeout(() => {
       toast({
         title: "Message Sent",
         description: "We'll get back to you as soon as possible!",
-      })
-      setName("")
-      setEmail("")
-      setMessage("")
-      setIsSubmitting(false)
-    }, 1500)
-  }
+      });
+      setName("");
+      setEmail("");
+      setMessage("");
+      setIsSubmitting(false);
+    }, 1500);
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Contact Us</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        Contact Us
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Get in Touch</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+            Get in Touch
+          </h2>
           <p className="text-gray-600 mb-8">
-            We'd love to hear from you! Whether you have a question about our products, need help with an order, or want
-            to collaborate with us, please don't hesitate to reach out.
+            We'd love to hear from you! Whether you have a question about our
+            products, need help with an order, or want to collaborate with us,
+            please don't hesitate to reach out.
           </p>
 
           <div className="space-y-6">
@@ -53,7 +66,9 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-medium text-gray-800">Our Location</h3>
-                <p className="text-gray-600">123 Decor Street, Port Harcourt, Rivers State, Nigeria</p>
+                <p className="text-gray-600">
+                  123 Decor Street, Port Harcourt, Rivers State, Nigeria
+                </p>
               </div>
             </div>
 
@@ -63,7 +78,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-medium text-gray-800">Phone</h3>
-                <p className="text-gray-600">+234 123 456 7890</p>
+                <p className="text-gray-600">+234 9037 286 193</p>
               </div>
             </div>
 
@@ -73,13 +88,15 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-medium text-gray-800">Email</h3>
-                <p className="text-gray-600">info@mekaaesthetics.com</p>
+                <p className="text-gray-600">chimekaariolu@gmail.com</p>
               </div>
             </div>
           </div>
 
           <div className="mt-10">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Connect With Us</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Connect With Us
+            </h3>
             <div className="flex space-x-4">
               <a
                 href="https://facebook.com/mekaaesthetics"
@@ -102,7 +119,7 @@ export default function ContactPage() {
               </a>
 
               <a
-                href="https://wa.me/2341234567890"
+                href="https://wa.me/2349037286193"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors"
@@ -122,7 +139,10 @@ export default function ContactPage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="name"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Your Name
                   </label>
                   <Input
@@ -136,7 +156,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Email Address
                   </label>
                   <Input
@@ -151,7 +174,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="message"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Message
                   </label>
                   <Textarea
@@ -165,7 +191,11 @@ export default function ContactPage() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     "Sending..."
                   ) : (
@@ -194,6 +224,5 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

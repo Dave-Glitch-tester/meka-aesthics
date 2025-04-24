@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import FeaturedProducts from "@/components/Home/featured-products";
-import TestimonialSection from "@/components/Home/testimonial-section";
+import FeaturedProducts from "@/components/Home/fetchFeatured-product";
+import ProductLoading from "@/components/Home/loading/productloading";
+import TestimonialLoading from "@/components/Home/loading/Testimonialloading";
+import TestimonialSection from "@/components/Home/fetchtestimonials";
 
 export default function Home() {
   return (
@@ -79,10 +82,14 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <FeaturedProducts />
+      <Suspense fallback={<ProductLoading />}>
+        <FeaturedProducts />
+      </Suspense>
 
       {/* Testimonials */}
-      <TestimonialSection />
+      <Suspense fallback={<TestimonialLoading />}>
+        <TestimonialSection />,
+      </Suspense>
 
       {/* CTA Section - Now matching the hero section gradient */}
       <section className="py-20 relative">

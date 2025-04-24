@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import review from "@/models/reviews";
+import Review from "@/models/reviews";
 import Product from "@/models/product";
 import connectDb from "@/db/connect";
-// import users from "@/models/users";
+
 export async function GET(request: NextRequest) {
   try {
     await connectDb();
@@ -10,12 +10,17 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get("productId");
     const featured = searchParams.get("featured");
 
-    // Fetch reviews from the database
+    // Build the query
     let query: any = {};
     if (productId) {
       query.productId = productId;
     }
-    let reviews = await review.find(query).sort({ createdAt: -1 });
+
+    // Fetch reviews and populate references
+    let reviews = await Review.find(query)
+      .populate("user", "name role avatar")
+      .populate("productId", "productName price category") // Populate product fields
+      .sort({ createdAt: -1 });
 
     // Filter featured reviews (high ratings)
     if (featured === "true") {
@@ -55,6 +60,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if the product exists
     const product = await Product.findById(productId);
     if (!product) {
       console.error("Product not found:", productId);
@@ -64,7 +70,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const newReview = await review.create({
+    // Create a new review
+    const newReview = await Review.create({
       productId,
       user: userId,
       rating,
@@ -73,9 +80,15 @@ export async function POST(request: Request) {
       avatar: data.avatar || "/placeholder.svg?height=100&width=100",
     });
 
-    console.log("Review created successfully:", newReview);
+    // Populate the newly created review
+    const populatedReview = await newReview
+      .populate("user", "name role avatar")
+      .populate("productId", "name price category")
+      .execPopulate();
 
-    return NextResponse.json(newReview, { status: 201 });
+    console.log("Review created successfully:", populatedReview);
+
+    return NextResponse.json(populatedReview, { status: 201 });
   } catch (error) {
     console.error("Error creating review:", error);
     return NextResponse.json(

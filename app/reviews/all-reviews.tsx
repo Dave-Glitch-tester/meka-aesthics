@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, StarHalf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Star, Search, Filter } from "lucide-react";
 
 interface Review {
   _id: string;
@@ -18,157 +25,137 @@ interface Review {
   rating: number;
   title: string;
   comment: string;
-  content: string;
   createdAt: string;
   avatar: string;
 }
 
-export default function AllReviews() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
+interface ReviewsDisplayProps {
+  reviews: Review[];
+}
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await fetch("/api/reviews");
-        if (response.ok) {
-          const data = await response.json();
-          setReviews(data);
-        }
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, []);
-
-  const filteredReviews =
-    filter === "all"
-      ? reviews
-      : reviews.filter((review) => review.rating === Number.parseInt(filter));
+export default function ReviewsDisplay({ reviews }: ReviewsDisplayProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [ratingFilter, setRatingFilter] = useState("all");
 
   const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <Star
-          key={`full-${i}`}
-          className="h-4 w-4 fill-yellow-400 text-yellow-400"
-        />
-      );
-    }
-
-    if (hasHalfStar) {
-      stars.push(
-        <StarHalf
-          key="half"
-          className="h-4 w-4 fill-yellow-400 text-yellow-400"
-        />
-      );
-    }
-
-    const emptyStars = 5 - stars.length;
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />);
-    }
-
-    return stars;
-  };
-
-  if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i} className="overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="ml-4">
-                  <Skeleton className="h-4 w-32 mb-2" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-              </div>
-              <Skeleton className="h-4 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-full mb-1" />
-              <Skeleton className="h-4 w-full mb-1" />
-              <Skeleton className="h-4 w-2/3" />
-            </CardContent>
-          </Card>
+      <div className="flex">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`h-4 w-4 ${
+              i < Math.floor(rating)
+                ? "fill-yellow-400 text-yellow-400"
+                : "fill-gray-200 text-gray-200"
+            }`}
+          />
         ))}
       </div>
     );
-  }
+  };
+
+  const filteredReviews = reviews
+    .filter(
+      (review) =>
+        review.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(
+      (review) =>
+        ratingFilter === "all" ||
+        review.rating === Number.parseInt(ratingFilter)
+    );
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-2 mb-6">
-        <Button
-          variant={filter === "all" ? "default" : "outline"}
-          onClick={() => setFilter("all")}
-          className={filter === "all" ? "bg-blue-600" : ""}
-        >
-          All Reviews
-        </Button>
-        {[5, 4, 3, 2, 1].map((rating) => (
-          <Button
-            key={rating}
-            variant={filter === rating.toString() ? "default" : "outline"}
-            onClick={() => setFilter(rating.toString())}
-            className={filter === rating.toString() ? "bg-blue-600" : ""}
-          >
-            {rating} {rating === 1 ? "Star" : "Stars"}
-          </Button>
-        ))}
+    <div className="container mx-auto px-4 py-12">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-blue-900 mb-4">
+          Customer Reviews
+        </h1>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          See what our customers are saying about our products. We're proud to
+          have earned their trust and satisfaction.
+        </p>
+      </div>
+
+      <div className="mb-8 flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search reviews..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <div className="w-full md:w-48">
+          <Select value={ratingFilter} onValueChange={setRatingFilter}>
+            <SelectTrigger>
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter by rating" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Ratings</SelectItem>
+              <SelectItem value="5">5 Stars</SelectItem>
+              <SelectItem value="4">4 Stars</SelectItem>
+              <SelectItem value="3">3 Stars</SelectItem>
+              <SelectItem value="2">2 Stars</SelectItem>
+              <SelectItem value="1">1 Star</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {filteredReviews.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12 bg-gray-50 rounded-lg max-w-4xl mx-auto">
           <p className="text-gray-500">
-            No reviews found with the selected filter.
+            No reviews found. Try adjusting your search or filter.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {filteredReviews.map((review) => (
-            <Card key={review._id} className="overflow-hidden">
+            <Card
+              key={review._id}
+              className="overflow-hidden shadow-md border-0 hover:shadow-lg transition-shadow"
+            >
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="relative h-12 w-12 rounded-full overflow-hidden">
                     <Image
-                      src={review.avatar || "/placeholder.svg"}
+                      src={
+                        review.avatar || "/placeholder.svg?height=100&width=100"
+                      }
                       alt={review.name}
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <div className="ml-4">
+                  <div className="ml-3">
                     <p className="font-medium">{review.name}</p>
-                    <p className="text-sm text-gray-500">{review.role}</p>
+                    <p className="text-xs text-gray-500">{review.role}</p>
                   </div>
                 </div>
+
                 <div className="flex items-center mb-2">
-                  <div className="flex mr-2">{renderStars(review.rating)}</div>
-                  <span className="text-sm text-gray-500">
+                  {renderStars(review.rating)}
+                  <span className="text-sm text-gray-500 ml-2">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </span>
                 </div>
+
                 <h3 className="font-semibold mb-2">{review.title}</h3>
-                <p className="text-gray-700 mb-3 line-clamp-3">
-                  {review.comment}
-                </p>
-                <div className="flex justify-between items-center mt-4">
+                <p className="text-gray-700 mb-3">{review.comment}</p>
+
+                <div className="mt-4 pt-3 border-t border-gray-100">
                   <Link
                     href={`/products/${review.productId}`}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"
                   >
-                    {review.productName}
+                    View {review.productName}
                   </Link>
                 </div>
               </CardContent>

@@ -23,7 +23,7 @@ const reviewSchema = new Schema({
   },
   userRole: {
     type: String,
-    default: "user",
+    default: "customer",
   },
   comment: {
     type: String,
@@ -35,7 +35,7 @@ const reviewSchema = new Schema({
   },
   avatar: {
     type: String,
-    required: true,
+    default: "https://example.com/default-avatar.png",
   },
 });
 
