@@ -4,7 +4,6 @@ import type { Review } from "@/types/product";
 export default async function fetchTestimonials() {
   let review: Review[];
   try {
-    // Use the environment variable for the API base URL
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/reviews?featured=true`,
       { next: { revalidate: 60 } }
@@ -39,7 +38,6 @@ export default async function fetchTestimonials() {
   } catch (error) {
     console.error("Error fetching testimonials:", error);
 
-    // Fallback UI in case of an error
     return (
       <section className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
@@ -47,7 +45,7 @@ export default async function fetchTestimonials() {
             What Our Customers Say
           </h2>
           <p className="text-center text-red-500 mb-8">
-            Failed to load testimonials. Please try again later` ${error}`.
+            Failed to load testimonials. Please try again later.
           </p>
         </div>
       </section>

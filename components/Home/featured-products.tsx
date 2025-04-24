@@ -17,7 +17,7 @@ export default function FeaturedProducts({
 }: {
   products: Product[];
 }) {
-  const [wishlistItems, setWishlistItems] = useState<string[]>([]); // Array of product IDs in wishlist
+  const [wishlistItems, setWishlistItems] = useState<string[]>([]);
   const [processingWishlist, setProcessingWishlist] = useState<string | null>(
     null
   );

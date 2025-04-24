@@ -66,7 +66,7 @@ export default function Home() {
                 and a touch of luxury to every corner of your home.
               </p>
               <Button asChild className="bg-blue-700 hover:bg-blue-800">
-                <Link href="/contact">contact</Link>
+                <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
             <div className="md:w-1/2 relative h-[400px] rounded-lg overflow-hidden shadow-xl">

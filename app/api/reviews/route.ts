@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
     if (featured === "true") {
       reviews = reviews.filter((review) => review.rating >= 4);
     }
+    console.log(reviews);
 
     return NextResponse.json(reviews);
   } catch (error) {
@@ -83,8 +84,7 @@ export async function POST(request: Request) {
     // Populate the newly created review
     const populatedReview = await newReview
       .populate("user", "name role avatar")
-      .populate("productId", "name price category")
-      .execPopulate();
+      .populate("productId", "productName price category");
 
     console.log("Review created successfully:", populatedReview);
 

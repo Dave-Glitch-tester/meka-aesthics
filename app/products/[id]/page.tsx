@@ -11,19 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Minus, Plus, ShoppingCart, Star, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import type { Product } from "@/types/product";
+import type { Product, Review } from "@/types/product";
 import Link from "next/link";
-
-interface Review {
-  _id: string;
-  productId: string;
-  userId: string;
-  name: string;
-  rating: number;
-  title: string;
-  comment: string;
-  createdAt: string;
-}
 
 interface ReviewFormData {
   rating: number;
@@ -367,9 +356,8 @@ export default function ProductDetailPage() {
     );
   }
 
-  // Mock images for the product
   const productImages = [
-    product.imageUrl || "/placeholder.svg?height=600&width=600",
+    product.imageUrl || "/herobg.jpg",
     "/placeholder.svg?height=600&width=600",
     "/placeholder.svg?height=600&width=600",
     "/placeholder.svg?height=600&width=600",

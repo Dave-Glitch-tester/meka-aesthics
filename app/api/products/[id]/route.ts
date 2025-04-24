@@ -2,17 +2,14 @@ import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
 import Product from "@/models/product";
 
+// GET product by ID
 export async function GET(
   request: Request,
-  params: Promise<{ params: { id: string } }>
+  { params }: { params: { id: string } }
 ) {
   try {
-    const {
-      params: { id },
-    } = await params;
-
     await connectDb();
-    const product = await Product.findById(id);
+    const product = await Product.findById(params.id);
 
     if (!product) {
       return NextResponse.json(
@@ -34,17 +31,13 @@ export async function GET(
 // PATCH product by ID
 export async function PATCH(
   request: Request,
-  context: Promise<{ params: { id: string } }>
+  { params }: { params: { id: string } }
 ) {
   try {
-    const {
-      params: { id },
-    } = await context;
-
     await connectDb();
     const data = await request.json();
 
-    const updatedProduct = await Product.findByIdAndUpdate(id, data, {
+    const updatedProduct = await Product.findByIdAndUpdate(params.id, data, {
       new: true,
       runValidators: true,
     });
@@ -69,15 +62,11 @@ export async function PATCH(
 // DELETE product by ID
 export async function DELETE(
   request: Request,
-  context: Promise<{ params: { id: string } }>
+  { params }: { params: { id: string } }
 ) {
   try {
-    const {
-      params: { id },
-    } = await context;
-
     await connectDb();
-    const deletedProduct = await Product.findByIdAndDelete(id);
+    const deletedProduct = await Product.findByIdAndDelete(params.id);
 
     if (!deletedProduct) {
       return NextResponse.json(
