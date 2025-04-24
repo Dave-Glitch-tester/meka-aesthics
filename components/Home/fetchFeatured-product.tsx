@@ -5,9 +5,12 @@ import type { Product } from "@/types/product";
 let products: Product[] = [];
 export default async function fetchFeaturedProducts() {
   try {
-    const response = await fetch("/api/products?featured=true", {
-      next: { revalidate: 0 },
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/products?featured=true`,
+      {
+        next: { revalidate: 0 },
+      }
+    );
     if (!response.ok) throw new Error("Failed to fetch products");
     const data = await response.json();
     products = data.slice(0, 4);
