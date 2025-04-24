@@ -1,5 +1,4 @@
 import FeaturedProducts from "./featured-products";
-import { toast } from "@/hooks/use-toast";
 import type { Product } from "@/types/product";
 
 let products: Product[] = [];
@@ -8,7 +7,7 @@ export default async function fetchFeaturedProducts() {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/products?featured=true`,
       {
-        next: { revalidate: 0 },
+        next: { revalidate: 60 },
       }
     );
     if (!response.ok) throw new Error("Failed to fetch products");
@@ -32,11 +31,7 @@ export default async function fetchFeaturedProducts() {
     return <FeaturedProducts products={products} />;
   } catch (error) {
     console.error("Error fetching products:", error);
-    toast({
-      title: "Error",
-      description: "Failed to load featured products",
-      variant: "destructive",
-    });
+
     return (
       <section className="py-20">
         <div className="container mx-auto px-4">
