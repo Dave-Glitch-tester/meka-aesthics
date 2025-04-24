@@ -5,10 +5,10 @@ import mongoose from "mongoose";
 
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: productId } = context.params;
+    const { id: productId } = (await context.params);
 
     // Validate product ID
     if (!mongoose.Types.ObjectId.isValid(productId)) {

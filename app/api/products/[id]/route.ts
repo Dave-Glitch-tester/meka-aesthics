@@ -3,10 +3,8 @@ import connectDb from "@/db/connect";
 import Product from "@/models/product";
 
 // GET product by ID
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await connectDb();
     const product = await Product.findById(params.id);
@@ -29,10 +27,8 @@ export async function GET(
 }
 
 // PATCH product by ID
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await connectDb();
     const data = await request.json();
@@ -60,10 +56,8 @@ export async function PATCH(
 }
 
 // DELETE product by ID
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await connectDb();
     const deletedProduct = await Product.findByIdAndDelete(params.id);

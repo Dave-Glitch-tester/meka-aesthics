@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import connectDb from "@/db/connect";
 import Wishlist from "@/models/wishlist";
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await connectDb();
     const id = params.id;
